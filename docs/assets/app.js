@@ -115,7 +115,7 @@ function renderSidebar() {
   aside.innerHTML = `
     <div class="side-brand">
       <div class="logo">☁️</div>
-      <div><b>Developer I & II Academy</b><span>13-phase roadmap</span></div>
+      <div><b>Developer I & II Academy</b><span>15-phase roadmap</span></div>
     </div>`;
 
   const nav = document.createElement('nav');
@@ -188,7 +188,7 @@ function renderHome() {
         <div class="hero-actions">
           <button class="btn primary" id="startBtn">${next ? '▶ Continue learning' : '🎉 Restart'}</button>
           <button class="btn ghost" id="phasesBtn">Browse all phases</button>
-          <span class="hero-meta">📅 ~13 phases · self-paced</span>
+          <span class="hero-meta">📅 15 phases · self-paced</span>
         </div>
       </div>
       <div class="ring-wrap">

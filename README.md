@@ -21,7 +21,7 @@ This repository is a **learning lab**, not just documentation. Every concept cov
 
 > **Scope** — The full developer journey: Apex & SOQL → triggers & order of execution → async Apex & platform events → UI (Visualforce / Aura / LWC) → testing & debugging → performance → integrations → release management → certification prep.
 
-> **Duration** — ~13 weeks, self-paced (each phase is one week of study + hands-on labs).
+ > **Duration** — ~13 weeks, self-paced (each phase is one week of study + hands-on labs). Phases 14–15 provide practical exercises and complete answers for every topic.
 
 ---
 
@@ -37,11 +37,11 @@ Curious how it all fits together? See **[ARCHITECTURE.md](./ARCHITECTURE.md)** f
 
 > **🎮 Interactive version** — explore the curriculum live at
 > **[`https://abdoaddouli.github.io/Salesforce-Dev-I-II-Roadmap/`](https://abdoaddouli.github.io/Salesforce-Dev-I-II-Roadmap/)**
-> built from `docs/` (13 modules, quizzes, search, progress tracking).
+> built from `docs/` (15 modules, quizzes, search, progress tracking).
 
 ---
 
-## 🧭 The 13-Phase Learning Roadmap
+## 🧭 The 15-Phase Learning Roadmap
 
 | Phase | Topic | Guide | Key Concepts |
 |------:|-------|-------|--------------|
@@ -58,6 +58,8 @@ Curious how it all fits together? See **[ARCHITECTURE.md](./ARCHITECTURE.md)** f
 | 11 | **Integration & Enterprise Patterns** | [11-Integration-and-Enterprise-Patterns.md](./developer%20Roadmap/11-Integration-and-Enterprise-Patterns.md) | REST/SOAP, callouts, retries, events |
 | 12 | **Release Management & CI/CD** | [12-Release-Management-and-CICD.md](./developer%20Roadmap/12-Release-Management-and-CICD.md) | Salesforce DX, package.xml, CI, scratch orgs |
 | 13 | **Certification Prep** | [13-Certification-Prep.md](./developer%20Roadmap/13-Certification-Prep.md) | PDI & PDII blueprint, quiz engine, study plans |
+| 14 | **Practical Exercises & Mini Projects** | [14-Practical-Exercises-and-Mini-Projects.md](./developer%20Roadmap/14-Practical-Exercises-and-Mini-Projects.md) | 33 exercises, 10 mini projects, 1 capstone |
+| 15 | **Answers & Results** | [15-Answers-and-Results.md](./developer%20Roadmap/15-Answers-and-Results.md) | Complete solutions, test classes, expected output |
 
 Each guide follows the same structure: **core concepts → hands-on labs → practice quiz → SOQL/Apex practice** to build skills incrementally.
 
@@ -175,7 +177,7 @@ All test classes use `@TestSetup` + `@isTest` and assert real behaviour (includi
 │   ├── dashboards/         # 1 dashboard (reference metadata)
 │   ├── platformEvents/     # Integration_Event__e
 │   └── customMetadata/     # Certification_Setting__mdt (exam facts)
-├── developer Roadmap/      # 13 phase study guides (the actual curriculum)
+├── developer Roadmap/      # 15 phase study guides (13 theory + exercises + answers)
 ├── scripts/apex/           # Apex warming-up snippets
 ├── scripts/soql/           # Practice SOQL queries
 ├── config/                 # Scratch org definition

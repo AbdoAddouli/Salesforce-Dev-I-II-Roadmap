@@ -1,6 +1,6 @@
 /* ============================================================================
  * Developer I & II Academy - Curriculum data
- * 13 phases following the `developer Roadmap/` guides. Content is condensed
+ * 15 phases following the `developer Roadmap/` guides. Content is condensed
  * from the phase guides and points back to the real repo artifacts.
  * ============================================================================
  */
@@ -469,7 +469,7 @@ Integer accepted = EventBus.publish(events).size();` },
       title: 'Invocable Methods', mins: 10,
       blocks: [
         { t: 'code', lang: 'apex', x: `public class StudyPlanActions {
-    @InvocableMethod(label='Generate 13-phase plan')
+    @InvocableMethod(label='Generate 15-phase plan')
     public static void generate(List<Request> reqs) {
         for (Request r : reqs) {
             CertificationPrepService.buildStudyPlan(
@@ -1027,6 +1027,196 @@ sf apex run test -c -o dev` },
         opts: ['Before trigger', 'Validation rules', 'Assignments', 'Flows'], a: 1, why: 'Before triggers run first, validation rules run second.' },
       { q: 'After Process Builder was retired and flows replaced it, a record-triggered Flow runs.',
         opts: ['Before triggers only', 'At step 11, after assignment rules', 'At the very start', 'Never'], a: 1, why: 'Record-triggered flows execute late in the sequence, after after-triggers and assignment rules.' },
+    ]
+  }
+},
+
+/* -------------------------------------------------------------------------- */
+/* PHASE 14 - PRACTICAL EXERCISES & MINI PROJECTS                              */
+/* -------------------------------------------------------------------------- */
+{
+  id: 'exercises',
+  n: 14,
+  title: 'Practical Exercises & Mini Projects',
+  icon: '14',
+  color: '#059669',
+  tagline: '33 exercises, 10 mini projects, 1 capstone',
+  guide: '14-Practical-Exercises-and-Mini-Projects.md',
+  art: [
+    { label: '14-Practical-Exercises-and-Mini-Projects.md', href: 'developer Roadmap/14-Practical-Exercises-and-Mini-Projects.md' },
+    { label: '15-Answers-and-Results.md', href: 'developer Roadmap/15-Answers-and-Results.md' },
+  ],
+  objectives: [
+    'Apply fundamentals through graded exercises (★ to ★★★)',
+    'Build mini projects combining 2–3 phases of concepts',
+    'Complete a capstone project touching all 13 roadmap phases',
+    'Practice real scratch-org deployment and testing workflows',
+  ],
+  lessons: [
+    {
+      title: 'Fundamentals & Apex Exercises (Phases 1–2)', mins: 15,
+      blocks: [
+        { t: 'p', x: 'These exercises cover SOQL parent-child queries, DML round trips with limits tracking, collections (List/Set/Map), the sharing model smoke test, partial vs all-or-nothing DML, and custom exceptions.' },
+        { t: 'list', items: [
+          'Exercise 1.1: SOQL parent-child query with subqueries and dot notation',
+          'Exercise 1.2: Full DML round trip (insert → update → upsert → delete → undelete) with Limits tracking',
+          'Exercise 1.3: Collections — build Map from query, demonstrate O(1) lookups',
+          'Exercise 1.4: Sharing model — with/without sharing classes and System.runAs',
+          'Exercise 1.5: Database.insert(list, false) vs insert list — partial success',
+          'Exercise 1.6: Custom exception creation and try/catch',
+        ]},
+        { t: 'callout', kind: 'tip', x: 'Mini Project 1: Build AccountHealthService.cls — a complete service class with 5 methods and full test coverage.' },
+      ]
+    },
+    {
+      title: 'SOQL, Triggers & Async Exercises (Phases 3–5)', mins: 18,
+      blocks: [
+        { t: 'p', x: 'Exercises covering aggregate queries with aliases, dynamic SOQL injection protection, SOSL multi-object search, before-trigger defaulting, change detection, recursion guards, Queueable lifecycle, Batch Apex, and platform event round trips.' },
+        { t: 'list', items: [
+          'Exercise 2.1–2.3: Aggregates, dynamic SOQL, SOSL with Test.setFixedSearchResults',
+          'Exercise 3.1–3.3: Before triggers, Trigger.oldMap change detection, RecursionGuard class',
+          'Exercise 4.1–4.3: Queueable with failure handling, Batch with QueryLocator, Platform Event publish/subscribe',
+        ]},
+        { t: 'p', x: 'Mini Projects: Universal Search Service, Lead Auto-Assignment Engine, Data Sync Pipeline.' },
+      ]
+    },
+    {
+      title: 'UI, Testing, Performance & Integration (Phases 6–12)', mins: 20,
+      blocks: [
+        { t: 'p', x: 'Exercises for @InvocableMethod, Visualforce controllers, Aura components, LWC with @wire and imperative calls, parent-child LWC communication, @TestSetup isolation, HTTP callout mocking, Query Plan analysis, Map joins vs nested loops, Named Credential callouts, and REST resource CRUD.' },
+        { t: 'list', items: [
+          'Exercise 5.1–5.2: InvocableMethod and Flow vs Trigger decision matrix',
+          'Exercise 6.1–6.4: VF custom controller, Aura + @AuraEnabled, LWC wire/imperative, parent-child CustomEvent',
+          'Exercise 7.1–7.3: Data isolation, startTest/stopTest, HttpCalloutMock',
+          'Exercise 8.1–8.2: Query Plan analysis, Map join performance comparison',
+          'Exercise 9.1–9.3: Named Credential callout, @RestResource CRUD, event-driven pipeline',
+          'Exercise 10.1–10.2: Scratch org lifecycle, destructive deployment',
+        ]},
+        { t: 'callout', kind: 'warn', x: 'Mini Projects: Onboarding Wizard, Full-Stack Dashboard, Comprehensive Test Suite, LDV Migration Tool, External API Hub, CI/CD Pipeline.' },
+      ]
+    },
+    {
+      title: 'Capstone: Certification Quiz Platform', mins: 15,
+      blocks: [
+        { t: 'p', x: 'The capstone project (★★★★) combines every phase into a single buildable application: a quiz platform with custom objects, triggers, async jobs, platform events, invocable Apex, LWC quiz UI, REST API, and a full CI/CD pipeline.' },
+        { t: 'table', head: ['Component', 'Phase Reference'], rows: [
+          ['Data model (Quiz, Question, Answer objects)', 'Phase 1'],
+          ['Service layer with collections and exceptions', 'Phase 2'],
+          ['SOQL/SOSL for question queries', 'Phase 3'],
+          ['Triggers for validation and notifications', 'Phase 4'],
+          ['Batch stats aggregation, Queueable sync', 'Phase 5'],
+          ['InvocableMethod for Flow scoring', 'Phase 6'],
+          ['LWC quiz interface, VF admin page', 'Phases 7–8'],
+          ['100% test coverage with mocks', 'Phase 9'],
+          ['Map joins for performance', 'Phase 10'],
+          ['REST API, platform events', 'Phase 11'],
+          ['GitHub Actions CI/CD pipeline', 'Phase 12'],
+        ]},
+        { t: 'callout', kind: 'tip', x: 'Check your work against 15-Answers-and-Results.md after every exercise. Full Apex code, SOQL, XML, and expected output included.' },
+      ]
+    },
+  ],
+  quiz: {
+    title: 'Phase 14 Quiz - Practical Application', mins: 5,
+    questions: [
+      { q: 'Which DML approach allows partial success?',
+        opts: ['insert list', 'Database.insert(list, true)', 'Database.insert(list, false)', 'update single record'], a: 2, why: 'Database.insert with allOrNothing=false returns SaveResult[] and allows partial success.' },
+      { q: 'A before trigger can modify Trigger.new fields with.',
+        opts: ['Zero extra DML', 'One extra DML', 'Two extra DML', 'No DML possible'], a: 0, why: 'Before triggers edit Trigger.new in memory; the platform saves the changes with the original DML.' },
+      { q: 'To prevent trigger recursion, use.',
+        opts: ['A static Set<Id> guard', 'System.runAs', 'Database.Stateful', 'Test.startTest'], a: 0, why: 'A static Set<Id> persists across trigger invocations within a transaction, preventing re-entry.' },
+      { q: 'The capstone project touches how many roadmap phases?',
+        opts: ['5', '8', '10', 'All 13'], a: 3, why: 'The capstone combines every phase: data model, Apex, SOQL, triggers, async, flows, UI, testing, performance, integration, and CI/CD.' },
+    ]
+  }
+},
+
+/* -------------------------------------------------------------------------- */
+/* PHASE 15 - ANSWERS & RESULTS                                                */
+/* -------------------------------------------------------------------------- */
+{
+  id: 'answers',
+  n: 15,
+  title: 'Answers & Results',
+  icon: '15',
+  color: '#7C3AED',
+  tagline: 'Complete solutions for every exercise',
+  guide: '15-Answers-and-Results.md',
+  art: [
+    { label: '15-Answers-and-Results.md', href: 'developer Roadmap/15-Answers-and-Results.md' },
+  ],
+  objectives: [
+    'Verify exercise solutions with complete Apex code',
+    'Understand common mistakes and how to avoid them',
+    'Review expected debug output and test assertions',
+    'Study the common mistakes reference table',
+  ],
+  lessons: [
+    {
+      title: 'Fundamentals & Apex Answers (Sections 1–2)', mins: 12,
+      blocks: [
+        { t: 'p', x: 'Complete solutions for Exercises 1.1–1.6 and Mini Project 1, plus Exercises 2.1–2.3 and Mini Project 2. Each answer includes full Apex code, test classes, and expected output.' },
+        { t: 'list', items: [
+          'Anonymous Apex scripts ready to run in Developer Console',
+          'SOQL queries with expected row counts',
+          'Test classes with @TestSetup and assertions',
+          'Custom exception classes and error handling patterns',
+        ]},
+        { t: 'callout', kind: 'tip', x: 'Copy-paste the anonymous Apex scripts directly into the Developer Console → Execute Anonymous window to see results instantly.' },
+      ]
+    },
+    {
+      title: 'Triggers, Async & Events Answers (Sections 3–4)', mins: 12,
+      blocks: [
+        { t: 'p', x: 'Complete trigger code, handler classes, recursion guards, Queueable implementations, Batch Apex, and platform event publish/subscribe patterns.' },
+        { t: 'list', items: [
+          'AccountDefaultTrigger — before insert defaulting with bulk support',
+          'CodeReviewChangeTrigger — Trigger.oldMap change detection',
+          'RecursionGuard.cls — static Set<Id> pattern',
+          'SimpleQueueable.cls — lifecycle with success and failure paths',
+          'ScoreBatch.cls — QueryLocator batch with scope comparison',
+          'TestNotificationTrigger — event-to-log materialization',
+        ]},
+      ]
+    },
+    {
+      title: 'UI, Testing & Performance Answers (Sections 5–8)', mins: 14,
+      blocks: [
+        { t: 'p', x: 'Solutions for @InvocableMethod, Visualforce pages with controllers, Aura components with $A.enqueueAction, LWC with @wire and imperative calls, test isolation, HTTP mocking, Query Plan analysis, and Map join performance.' },
+        { t: 'list', items: [
+          'ScoreCalculatorService — @InvocableMethod with Request/Result inner classes',
+          'AccountSearchController + AccountSearchPage — VF search with reRender',
+          'accountAuraList component — init handler + application event',
+          'LWC accountListLwc — @wire + refreshApex + imperative create',
+          'MockApiService — HttpCalloutMock with retry logic',
+          'PerformanceService — nestedLoopJoin vs mapJoin with CPU comparison',
+        ]},
+      ]
+    },
+    {
+      title: 'Integration, CI/CD & Capstone Answers (Sections 9–10)', mins: 12,
+      blocks: [
+        { t: 'p', x: 'Solutions for Named Credential callouts, @RestResource CRUD endpoints, event-driven integration pipelines, scratch org lifecycle, destructive deployments, and the CI/CD GitHub Actions workflow.' },
+        { t: 'list', items: [
+          'MyRestResource.cls — @HttpGet/@HttpPost/@HttpPatch/@HttpDelete',
+          'MockApiService + MockApiFailAll — HttpCalloutMock implementations',
+          'destructiveChanges.xml + package.xml — removal workflow',
+          '.github/workflows/ci.yml — full CI/CD pipeline',
+          'Common mistakes reference table covering all 33 exercises',
+        ]},
+        { t: 'callout', kind: 'tip', x: 'The Common Mistakes table at the end of 15-Answers-and-Results.md is a quick-reference checklist — review it before attempting the capstone project.' },
+      ]
+    },
+  ],
+  quiz: {
+    title: 'Phase 15 Quiz - Solutions Review', mins: 3,
+    questions: [
+      { q: 'The Common Mistakes table in the answers file covers how many exercises?',
+        opts: ['10', '20', '33', '50'], a: 2, why: 'The table lists one common mistake per exercise, covering all 33 exercises across 10 sections.' },
+      { q: 'Anonymous Apex scripts in the answers can be run in.',
+        opts: ['VS Code terminal only', 'Developer Console → Execute Anonymous', 'GitHub Actions', 'Flow Builder'], a: 1, why: 'Anonymous Apex scripts are designed for the Developer Console Execute Anonymous window or sf apex run.' },
+      { q: 'The capstone project requires which minimum coverage?',
+        opts: ['50%', '65%', '75%', '100%'], a: 2, why: '75% is the production deployment requirement; the capstone asserts this as the success criteria.' },
     ]
   }
 },
