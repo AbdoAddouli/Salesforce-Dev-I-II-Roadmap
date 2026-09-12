@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>CODE_REVIEW__C.NAME</field>
+    </columns>
+    <columns>
+        <field>CODE_REVIEW__C.REVIEWED_ITEM__C</field>
+    </columns>
+    <columns>
+        <field>CODE_REVIEW__C.REVIEWER__C</field>
+    </columns>
+    <columns>
+        <field>CODE_REVIEW__C.REVIEW_STATUS__C</field>
+    </columns>
+    <columns>
+        <field>CODE_REVIEW__C.RISK_LEVEL__C</field>
+    </columns>
+    <columns>
+        <field>CODE_REVIEW__C.REVIEW_DATE__C</field>
+    </columns>
+    <format>Tabular</format>
+    <name>Code Review Board</name>
+    <params>
+        <name>enableRecordCount</name>
+        <value>true</value>
+    </params>
+    <reportType>Code_Review__c</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+</Report>

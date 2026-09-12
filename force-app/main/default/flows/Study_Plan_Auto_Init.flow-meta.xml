@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>68.0</apiVersion>
+    <label>Study_Plan_Auto_Init</label>
+    <processType>RecordFlow</processType>
+    <start>
+        <connector>
+            <targetReference>Set_Defaults</targetReference>
+        </connector>
+        <object>Study_Plan__c</object>
+        <filterType>Insert</filterType>
+    </start>
+    <recordUpdates>
+        <name>Set_Defaults</name>
+        <inputReference>$Record</inputReference>
+        <outputAssignments>
+            <name>Status__c</name>
+            <value><stringValue>Not Started</stringValue></value>
+        </outputAssignments>
+        <outputAssignments>
+            <name>Progress__c</name>
+            <value><numberValue>0</numberValue></value>
+        </outputAssignments>
+        <outputAssignments>
+            <name>Completed_Lessons__c</name>
+            <value><numberValue>0</numberValue></value>
+        </outputAssignments>
+    </recordUpdates>
+</Flow>

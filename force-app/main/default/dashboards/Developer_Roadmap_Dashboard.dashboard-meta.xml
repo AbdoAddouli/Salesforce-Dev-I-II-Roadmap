@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Dashboard xmlns="http://soap.sforce.com/2006/04/metadata">
+    <backgroundEndColor>#F8F8F8</backgroundEndColor>
+    <backgroundFadeColor>#F8F8F8</backgroundFadeColor>
+    <backgroundStartColor>#F8F8F8</backgroundStartColor>
+    <dashboardType>LoggedInUser</dashboardType>
+    <description>Study progress and code review pipeline overview.</description>
+    <isGridLayout>true</isGridLayout>
+    <leftSection>
+        <columnSize>Medium</columnSize>
+        <components>
+            <component>
+                <componentType>FlexTable</componentType>
+                <displayName>Study Plans</displayName>
+                <previousGroupingSeparate>false</previousGroupingSeparate>
+                <report>unfiled$public/Study_Plan_Overview</report>
+                <sortLevel1>
+                    <column>STUDY_PLAN__C.PROGRESS__C</column>
+                    <sortOrder>Descending</sortOrder>
+                </sortLevel1>
+            </component>
+        </components>
+    </leftSection>
+    <rightSection>
+        <columnSize>Medium</columnSize>
+        <components>
+            <component>
+                <componentType>FlexTable</componentType>
+                <displayName>Code Reviews</displayName>
+                <previousGroupingSeparate>false</previousGroupingSeparate>
+                <report>unfiled$public/Code_Review_Board</report>
+            </component>
+        </components>
+    </rightSection>
+    <textColor>#000000</textColor>
+    <title>Developer Roadmap Dashboard</title>
+</Dashboard>

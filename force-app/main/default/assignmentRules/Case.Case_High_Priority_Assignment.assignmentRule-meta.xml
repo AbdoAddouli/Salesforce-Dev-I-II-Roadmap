@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AssignmentRules xmlns="http://soap.sforce.com/2006/04/metadata">
+    <assignmentRule>
+        <fullName>Case_High_Priority_Assignment</fullName>
+        <active>true</active>
+        <label>Case High Priority Assignment</label>
+        <ruleEntry>
+            <assignedTo>005000000000000</assignedTo>
+            <booleanFilter>(1)</booleanFilter>
+            <criteriaItems>
+                <field>Priority</field>
+                <operation>equals</operation>
+                <value>High</value>
+            </criteriaItems>
+        </ruleEntry>
+    </assignmentRule>
+</AssignmentRules>

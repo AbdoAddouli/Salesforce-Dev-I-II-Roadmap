@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Workspace for the Salesforce Developer I &amp; II study roadmap.</description>
+    <isNavAutoTempTabsDisabled>false</isNavAutoTempTabsDisabled>
+    <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
+    <label>Developer Roadmap</label>
+    <tabs>
+        <tab>standard__Home</tab>
+        <tab>Dev_Task__c</tab>
+        <tab>Study_Plan__c</tab>
+        <tab>Training_Question__c</tab>
+        <tab>Code_Review__c</tab>
+        <tab>Integration_Log__c</tab>
+        <tab>standard__Reports</tab>
+        <tab>standard__Dashboards</tab>
+    </tabs>
+</CustomApplication>

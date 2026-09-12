@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <active>true</active>
+    <description>Quiz score must be between 0 and 100.</description>
+    <errorConditionFormula>NOT(ISBLANK(Quiz_Score__c)) &amp;&amp; (Quiz_Score__c &lt; 0 || Quiz_Score__c &gt; 100)</errorConditionFormula>
+    <errorDisplayField>Quiz_Score__c</errorDisplayField>
+    <errorMessage>Quiz Score must be between 0 and 100.</errorMessage>
+</ValidationRule>

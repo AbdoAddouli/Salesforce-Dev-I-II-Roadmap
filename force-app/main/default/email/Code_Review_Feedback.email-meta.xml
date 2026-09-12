@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>Sends structured feedback after a code review is completed.</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>Code Review Feedback</name>
+    <style>Custom</style>
+    <subject>Code review completed for {!Code_Review__c.Reviewed_Item__c}</subject>
+    <htmlValue>&lt;html&gt;
+&lt;body&gt;
+&lt;p&gt;Your code review was just completed.&lt;/p&gt;
+&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;Reviewed item&lt;/td&gt;&lt;td&gt;{!Code_Review__c.Reviewed_Item__c}&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Status&lt;/td&gt;&lt;td&gt;{!Code_Review__c.Review_Status__c}&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Risk level&lt;/td&gt;&lt;td&gt;{!Code_Review__c.Risk_Level__c}&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Comments&lt;/td&gt;&lt;td&gt;{!Code_Review__c.Comments__c}&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;p&gt;Reviewer: {!Code_Review__c.Reviewer__c} on {!Code_Review__c.Review_Date__c}&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</htmlValue>
+    <type>Custom</type>
+</EmailTemplate>

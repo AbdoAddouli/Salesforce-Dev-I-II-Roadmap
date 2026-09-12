@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <active>true</active>
+    <description>Duration must be a non-negative value.</description>
+    <errorConditionFormula>Duration_Ms__c &lt; 0</errorConditionFormula>
+    <errorDisplayField>Duration_Ms__c</errorDisplayField>
+    <errorMessage>Duration (ms) cannot be negative.</errorMessage>
+</ValidationRule>

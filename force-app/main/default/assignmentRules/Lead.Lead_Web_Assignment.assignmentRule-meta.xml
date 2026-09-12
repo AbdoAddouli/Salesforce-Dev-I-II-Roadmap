@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AssignmentRules xmlns="http://soap.sforce.com/2006/04/metadata">
+    <assignmentRule>
+        <fullName>Lead_Web_Assignment</fullName>
+        <active>true</active>
+        <label>Lead Web Assignment</label>
+        <ruleEntry>
+            <assignedTo>005000000000000</assignedTo>
+            <booleanFilter>(1)</booleanFilter>
+            <criteriaItems>
+                <field>LeadSource</field>
+                <operation>equals</operation>
+                <value>Web</value>
+            </criteriaItems>
+        </ruleEntry>
+    </assignmentRule>
+</AssignmentRules>

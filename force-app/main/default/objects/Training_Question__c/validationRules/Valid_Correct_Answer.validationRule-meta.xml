@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <active>true</active>
+    <description>Correct answer must be A, B, C, D, or E.</description>
+    <errorConditionFormula>Is_Active__c &amp;&amp; NOT(CONTAINS("A B C D E", Correct_Answer__c))</errorConditionFormula>
+    <errorDisplayField>Correct_Answer__c</errorDisplayField>
+    <errorMessage>Correct Answer must be A, B, C, D, or E.</errorMessage>
+</ValidationRule>

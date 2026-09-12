@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ApprovalProcess xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Code_Review_Submission</fullName>
+    <active>true</active>
+    <allowRecall>true</allowRecall>
+    <description>Standard approval flow for code review submissions.</description>
+    <displayTechnicalNames>true</displayTechnicalNames>
+    <emailNotification>true</emailNotification>
+    <label>Code Review Submission</label>
+    <object>Code_Review__c</object>
+    <orderIndependentOK>false</orderIndependentOK>
+    <showApprovalHistory>true</showApprovalHistory>
+    <submittedBy>
+        <type>RecordOwner</type>
+    </submittedBy>
+    <entryCriteria>
+        <leftValue>Code_Review__c.Review_Status__c</leftValue>
+        <operator>EqualTo</operator>
+        <rightValue>Submitted</rightValue>
+    </entryCriteria>
+    <approvalStep>
+        <name>Team_Lead_Approval</name>
+        <label>Team Lead Approval</label>
+        <assignedApprover>
+            <type>Queue</type>
+            <name>Code_Review_Approvers</name>
+        </assignedApprover>
+        <allowDelegate>true</allowDelegate>
+        <commentsField>Comments__c</commentsField>
+        <redirectToEditPageForApproval>false</redirectToEditPageForApproval>
+    </approvalStep>
+</ApprovalProcess>

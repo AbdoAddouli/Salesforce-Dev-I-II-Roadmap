@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <active>true</active>
+    <description>Progress must be between 0 and 100.</description>
+    <errorConditionFormula>Progress__c &lt; 0 || Progress__c &gt; 100</errorConditionFormula>
+    <errorDisplayField>Progress__c</errorDisplayField>
+    <errorMessage>Progress must be between 0 and 100.</errorMessage>
+</ValidationRule>
