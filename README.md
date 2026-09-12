@@ -58,7 +58,7 @@ Curious how it all fits together? See **[ARCHITECTURE.md](./ARCHITECTURE.md)** f
 | 11 | **Integration & Enterprise Patterns** | [11-Integration-and-Enterprise-Patterns.md](./developer%20Roadmap/11-Integration-and-Enterprise-Patterns.md) | REST/SOAP, callouts, retries, events |
 | 12 | **Release Management & CI/CD** | [12-Release-Management-and-CICD.md](./developer%20Roadmap/12-Release-Management-and-CICD.md) | Salesforce DX, package.xml, CI, scratch orgs |
 | 13 | **Certification Prep** | [13-Certification-Prep.md](./developer%20Roadmap/13-Certification-Prep.md) | PDI & PDII blueprint, quiz engine, study plans |
-| 14 | **Practical Exercises & Mini Projects** | [14-Practical-Exercises-and-Mini-Projects.md](./developer%20Roadmap/14-Practical-Exercises-and-Mini-Projects.md) | 33 exercises, 10 mini projects, 1 capstone |
+| 14 | **Practical Exercises & Mini Projects** | [14-Practical-Exercises-and-Mini-Projects.md](./developer%20Roadmap/14-Practical-Exercises-and-Mini-Projects.md) | 31 exercises, 10 mini projects, 1 capstone |
 | 15 | **Answers & Results** | [15-Answers-and-Results.md](./developer%20Roadmap/15-Answers-and-Results.md) | Complete solutions, test classes, expected output |
 
 Each guide follows the same structure: **core concepts → hands-on labs → practice quiz → SOQL/Apex practice** to build skills incrementally.

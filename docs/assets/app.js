@@ -363,7 +363,7 @@ function renderLesson(mod, li) {
         </a>
       </aside>
 
-      <article class="lesson article">
+      <article class="lesson article" style="--c:${mod.color}">
         <div class="lesson-head" style="--c:${mod.color}">
           <div class="lh-meta">Phase ${String(mod.n).padStart(2, '0')} · Lesson ${li + 1} of ${mod.lessons.length} · ${lesson.mins} min</div>
           <h1>${lesson.title}</h1>
@@ -428,6 +428,34 @@ function renderBlock(b) {
         <div class="sc-actions"><button class="btn sm ghost showA">Show answer</button></div>
         <div class="sc-a" hidden>${esc(b.a)}</div>
       </div>`;
+    case 'ex':
+    case 'proj': {
+      const isProject = b.t === 'proj';
+      const items = b.steps || b.reqs || [];
+      const lis = items.map(i =>
+        typeof i === 'string'
+          ? `<li>${esc(i)}</li>`
+          : `<li class="ex-group"><b>${esc(i.h)}</b><ul>${i.items.map(x => `<li>${esc(x)}</li>`).join('')}</ul></li>`
+      ).join('');
+      const stars = '★'.repeat(b.stars) + '☆'.repeat(Math.max(0, 4 - b.stars));
+      const code = b.code ? renderBlock({ t: 'code', ...b.code }) : '';
+      const footer = isProject
+        ? `<div class="ex-verify">🎯 Success — ${esc(b.success)}</div>`
+        : `<div class="ex-verify">✅ Verify — ${esc(b.verify)}</div>`;
+      return `
+        <div class="ex-card ${isProject ? 'proj' : ''}" data-stars="${b.stars}">
+          <div class="ex-head">
+            <span class="ex-id">${esc(b.id)}</span>
+            <span class="ex-stars">${stars}</span>
+          </div>
+          <h3 class="ex-title">${esc(b.title)}</h3>
+          <p class="ex-obj">${esc(b.obj)}</p>
+          ${code}
+          <div class="ex-label">${isProject ? '📋 Requirements' : '🧭 Instructions'}</div>
+          <ol class="ex-list">${lis}</ol>
+          ${footer}
+        </div>`;
+    }
     default: return '';
   }
 }

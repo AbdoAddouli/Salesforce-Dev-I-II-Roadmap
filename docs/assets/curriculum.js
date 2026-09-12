@@ -1040,7 +1040,7 @@ sf apex run test -c -o dev` },
   title: 'Practical Exercises & Mini Projects',
   icon: '14',
   color: '#059669',
-  tagline: '33 exercises, 10 mini projects, 1 capstone',
+  tagline: '31 exercises, 10 mini projects, 1 capstone',
   guide: '14-Practical-Exercises-and-Mini-Projects.md',
   art: [
     { label: '14-Practical-Exercises-and-Mini-Projects.md', href: 'developer Roadmap/14-Practical-Exercises-and-Mini-Projects.md' },
@@ -1054,65 +1054,423 @@ sf apex run test -c -o dev` },
   ],
   lessons: [
     {
-      title: 'Fundamentals & Apex Exercises (Phases 1–2)', mins: 15,
+      title: 'S1 · Fundamentals & Apex Basics (Phases 1–2)', mins: 28,
       blocks: [
-        { t: 'p', x: 'These exercises cover SOQL parent-child queries, DML round trips with limits tracking, collections (List/Set/Map), the sharing model smoke test, partial vs all-or-nothing DML, and custom exceptions.' },
-        { t: 'list', items: [
-          'Exercise 1.1: SOQL parent-child query with subqueries and dot notation',
-          'Exercise 1.2: Full DML round trip (insert → update → upsert → delete → undelete) with Limits tracking',
-          'Exercise 1.3: Collections — build Map from query, demonstrate O(1) lookups',
-          'Exercise 1.4: Sharing model — with/without sharing classes and System.runAs',
-          'Exercise 1.5: Database.insert(list, false) vs insert list — partial success',
-          'Exercise 1.6: Custom exception creation and try/catch',
+        { t: 'p', x: 'This phase is the hands-on laboratory for every concept in the roadmap. Each section maps to the corresponding theory phase. Exercises are graded ★ (beginner) to ★★★ (advanced). Mini projects combine multiple phases into a single buildable feature.' },
+        { t: 'table', head: ['Rating', 'Difficulty'], rows: [
+          ['★', 'Beginner — single concept, guided steps'],
+          ['★★', 'Intermediate — multiple concepts, some decision-making'],
+          ['★★★', 'Advanced — multi-phase integration, design decisions required'],
+          ['★★★★', 'Expert — full application across all roadmap phases'],
         ]},
-        { t: 'callout', kind: 'tip', x: 'Mini Project 1: Build AccountHealthService.cls — a complete service class with 5 methods and full test coverage.' },
+        { t: 'callout', kind: 'tip', x: 'Workflow: complete all ★ exercises before ★★/★★★, do mini projects only after the preceding exercises, and check your work against 15-Answers-and-Results.md after every exercise.' },
+        { t: 'ex', id: '1.1', title: 'SOQL Parent-Child Query', stars: 1, obj: 'Query the core Sales Cloud data model with relationship traversal.', steps: [
+          'Create a scratch org and deploy source.',
+          'Write an anonymous Apex script that creates 3 Accounts with Health_Score__c values of 50, 75 and 90, then creates Contacts: 2 for the first Account, 1 for the second, 0 for the third.',
+          'Write a single SOQL query that returns every Account with its child Contacts using a subquery.',
+          'Write a second SOQL query that returns every Contact with its parent Account.Name using dot notation.',
+          'System.debug the results and count the total contacts across all accounts.',
+        ], verify: 'You used exactly 2 SOQL statements. No queries inside loops.' },
+        { t: 'ex', id: '1.2', title: 'DML Round Trip with Limits Tracking', stars: 1, obj: 'Master insert, update, upsert, delete, and undelete while tracking governor usage.', steps: [
+          'In anonymous Apex, build a List<Account> with 5 records and insert them in ONE statement.',
+          'Read them back with one SOQL. Print Limits.getDmlStatements() and Limits.getLimitDMLStatements().',
+          'Modify the Health_Score__c field of 3 of the 5 records and update in ONE statement.',
+          'Upsert all 5 using their standard Id.',
+          'Delete 2 records, then undelete one of them.',
+          "Query deleted records: SELECT Id, Name FROM Account WHERE IsDeleted = true ALL ROWS.",
+          'Print the final DML statement count and total records processed.',
+        ], verify: 'Total DML statements used ≤ 5 (insert + query + update + delete + undelete + ALL ROWS query).' },
+        { t: 'ex', id: '1.3', title: 'Collections: List, Set, Map', stars: 2, obj: 'Use all three collection types with sObjects and demonstrate the Map constructor pattern.', steps: [
+          'Insert 10 Accounts in one DML statement.',
+          'Build a Set<Id> of all Account Ids from the query results.',
+          'Build a Map<Id, Account> using the new Map<Id, Account>([SELECT ...]) constructor.',
+          'Iterate over accountsById.keySet() and print each Account Name.',
+          'Demonstrate containsKey with a valid Id and a bogus Id.',
+          'Convert the map to List<Account> via accountsById.values() and verify the size.',
+          'Print the CPU time before and after using Limits.getCpuTime().',
+        ], verify: 'You never access a record by index after building the map. All lookups use .get(id).' },
+        { t: 'ex', id: '1.4', title: 'Sharing Model Smoke Test', stars: 2, obj: 'Observe the difference between with sharing and without sharing.', steps: [
+          'Create public with sharing class SharingTestA with public static Integer countAccounts() returning [SELECT COUNT() FROM Account], and public without sharing class SharingTestB with the same method.',
+          'From anonymous Apex, run both as admin and print the results — both return the same count.',
+          'Write a test class SharingModelTest that creates a low-privilege Standard User profile user in @TestSetup.',
+          'Use System.runAs(lowPriv) to call both classes.',
+          'Assert that SharingTestA.countAccounts() returns fewer rows than SharingTestB.countAccounts().',
+        ], verify: 'The test passes and demonstrates the sharing difference.' },
+        { t: 'ex', id: '1.5', title: 'Partial vs All-or-Nothing DML', stars: 2, obj: 'Contrast Database.insert(list, false) with insert list on mixed-validity data.', steps: [
+          'Build a list containing 3 valid Account records and 1 record with a Name longer than 255 characters.',
+          'Run Database.insert(records, false) and loop the SaveResult[] to print isSuccess() and getErrors() for each record.',
+          'Count successes and failures.',
+          'Now try insert records (all-or-nothing) inside a try/catch and observe the DmlException behavior.',
+          'Assert that the all-or-nothing approach saved 0 records, while the partial approach saved 3.',
+        ], verify: 'You can explain why partial DML saved records despite one failure.' },
+        { t: 'ex', id: '1.6', title: 'Custom Exception and Error Handling', stars: 2, obj: 'Create and use a custom exception class.', steps: [
+          'Create AccountValidationException extends Exception.',
+          'Write a method validateAccount(Account a) that throws AccountValidationException if Name is blank or Health_Score__c is outside 0–100.',
+          'Call validateAccount from anonymous Apex in a try/catch block for: a blank-name account, a score of 150, and a valid account.',
+          'Print the exception message for invalid inputs and "Valid" for the valid one.',
+        ], verify: 'Custom exception is caught separately from generic Exception.' },
+        { t: 'proj', id: 'MP1', title: 'Account Health Management Service', stars: 3, obj: 'Build a service class that manages Account health scores with full DML, collections, and exception handling.', reqs: [
+          'Create AccountHealthService.cls with with sharing.',
+          'getAccountsByMinScore(Integer minScore) — query accounts above a threshold.',
+          'buildAccountMap(List<Id> accountIds) — returns a Map for O(1) lookups.',
+          'normalizeScores(List<Account> accounts) — clamps Health_Score__c to 0–100, sets null to 70.',
+          'bulkUpdateScores(Map<Id, Integer> scoreUpdates) — applies score updates in one DML.',
+          'calculateAverageScore(List<Account> accounts) — returns the average (handle empty list).',
+          'Create AccountHealthServiceTest.cls with @TestSetup creating 10 accounts with varied scores, one test per service method, and assertions on collection sizes, DML counts and edge cases (empty list, null scores).',
+        ], success: 'sf apex run test -c shows 100% coverage and all tests pass.' },
       ]
     },
     {
-      title: 'SOQL, Triggers & Async Exercises (Phases 3–5)', mins: 18,
+      title: 'S2 · SOQL & SOSL (Phase 3)', mins: 14,
       blocks: [
-        { t: 'p', x: 'Exercises covering aggregate queries with aliases, dynamic SOQL injection protection, SOSL multi-object search, before-trigger defaulting, change detection, recursion guards, Queueable lifecycle, Batch Apex, and platform event round trips.' },
-        { t: 'list', items: [
-          'Exercise 2.1–2.3: Aggregates, dynamic SOQL, SOSL with Test.setFixedSearchResults',
-          'Exercise 3.1–3.3: Before triggers, Trigger.oldMap change detection, RecursionGuard class',
-          'Exercise 4.1–4.3: Queueable with failure handling, Batch with QueryLocator, Platform Event publish/subscribe',
-        ]},
-        { t: 'p', x: 'Mini Projects: Universal Search Service, Lead Auto-Assignment Engine, Data Sync Pipeline.' },
+        { t: 'ex', id: '2.1', title: 'Aggregate Queries with Aliases', stars: 1, obj: 'Write GROUP BY queries and read AggregateResult by alias.', steps: [
+          'Create 3 Accounts, each with a different number of Contacts (5, 3, 1).',
+          'Write an aggregate SOQL: SELECT AccountId, COUNT(Id) contactCount FROM Contact WHERE AccountId != null GROUP BY AccountId.',
+          'Loop the AggregateResult list, casting row.get(\'contactCount\') to Integer.',
+          'Write a second aggregate with HAVING COUNT(Id) > 2 and verify only the 5-contact account appears.',
+          'Write a query using AVG(Health_Score__c) on Account and cast the result to Decimal.',
+        ], verify: 'You read aggregates only by alias, never by source field name.' },
+        { t: 'ex', id: '2.2', title: 'Dynamic SOQL with Injection Protection', stars: 2, obj: 'Build safe dynamic queries and demonstrate injection defense.', steps: [
+          "Write a method searchAccounts(String searchTerm) that builds the query with String.escapeSingleQuotes:",
+          'Call it with TechCorp and verify results.',
+          'Call it with \' OR 1=1 -- and verify it returns 0 results (escaped).',
+          'Write a second method using bind variables: Database.query(\'SELECT Id, Name FROM Account WHERE Name = :searchTerm\').',
+          'Compare the two approaches and document when each is appropriate.',
+        ], code: { lang: 'apex', x: `String query = 'SELECT Id, Name FROM Account WHERE Name LIKE \\'%' + String.escapeSingleQuotes(searchTerm) + '%\\' LIMIT 10';
+return Database.query(query);` }, verify: 'The escaped version returns 0 results for injection input. The bind version throws for LIKE patterns.' },
+        { t: 'ex', id: '2.3', title: 'SOSL Multi-Object Search', stars: 2, obj: 'Use SOSL to search across Account and Contact simultaneously.', steps: [
+          'Create an Account named "Northwind Traders" and a Contact named "North Windlass".',
+          "Execute SOSL: FIND 'North' IN ALL FIELDS RETURNING Account(Id, Name), Contact(Id, FirstName, LastName).",
+          'Print results[0] size (Account matches) and results[1] size (Contact matches).',
+          'Write a test that uses Test.setFixedSearchResults to stub the SOSL results.',
+          'Assert the correct object order in the List<List<SObject>>.',
+        ], verify: 'Results[0] is Accounts, results[1] is Contacts. Test passes with fixed results.' },
+        { t: 'proj', id: 'MP2', title: 'Universal Search Service', stars: 3, obj: 'Build a search service that combines SOQL and SOSL for a unified search experience.', reqs: [
+          'Create SearchService.cls with: searchAcrossObjects(String term) — SOSL across Account, Contact, Lead.',
+          'searchAccountsWithChildren(String nameFilter, Integer minContacts) — SOQL with subquery + HAVING.',
+          'countRecordsByObject() — aggregate count across standard objects.',
+          'Create SearchServiceTest.cls with SOSL tests using Test.setFixedSearchResults, aggregate tests with setup data, and edge cases (empty search term, no matching records).',
+        ], success: 'All tests pass; SOSL test uses fixed results; aggregate casts are correct.' },
       ]
     },
     {
-      title: 'UI, Testing, Performance & Integration (Phases 6–12)', mins: 20,
+      title: 'S3 · Triggers & Order of Execution (Phase 4)', mins: 15,
       blocks: [
-        { t: 'p', x: 'Exercises for @InvocableMethod, Visualforce controllers, Aura components, LWC with @wire and imperative calls, parent-child LWC communication, @TestSetup isolation, HTTP callout mocking, Query Plan analysis, Map joins vs nested loops, Named Credential callouts, and REST resource CRUD.' },
-        { t: 'list', items: [
-          'Exercise 5.1–5.2: InvocableMethod and Flow vs Trigger decision matrix',
-          'Exercise 6.1–6.4: VF custom controller, Aura + @AuraEnabled, LWC wire/imperative, parent-child CustomEvent',
-          'Exercise 7.1–7.3: Data isolation, startTest/stopTest, HttpCalloutMock',
-          'Exercise 8.1–8.2: Query Plan analysis, Map join performance comparison',
-          'Exercise 9.1–9.3: Named Credential callout, @RestResource CRUD, event-driven pipeline',
-          'Exercise 10.1–10.2: Scratch org lifecycle, destructive deployment',
-        ]},
-        { t: 'callout', kind: 'warn', x: 'Mini Projects: Onboarding Wizard, Full-Stack Dashboard, Comprehensive Test Suite, LDV Migration Tool, External API Hub, CI/CD Pipeline.' },
+        { t: 'ex', id: '3.1', title: 'Before-Trigger Defaulting', stars: 1, obj: 'Set field defaults in a before insert trigger without extra DML.', steps: [
+          "Create a trigger AccountDefaultTrigger on Account (before insert) that sets Health_Score__c to 70 when null and Description to 'Auto-created on ' + Date.today() when null.",
+          'Insert an Account with only Name set.',
+          'Query it back and verify both fields were populated.',
+          'Insert 200 Accounts in one list and verify the trigger handled all records (no governor violation).',
+        ], verify: 'No second DML was used. The fields are saved with the insert.' },
+        { t: 'ex', id: '3.2', title: 'Change Detection in After-Update', stars: 2, obj: 'Act only when a specific field changes, not on every update.', steps: [
+          'Study the Code_Review__c object. Create a trigger CodeReviewChangeTrigger on Code_Review__c (after update).',
+          'Compare Trigger.oldMap[key].Review_Status__c with Trigger.newMap[key].Review_Status__c.',
+          'Only when Review_Status__c changed, create an Integration_Log__c record marking the change.',
+          'Update a record changing Comments__c only — verify NO log is created.',
+          'Update the same record changing Review_Status__c — verify a log IS created.',
+        ], verify: 'Change detection works correctly; unrelated field changes are ignored.' },
+        { t: 'ex', id: '3.3', title: 'Recursion Guard Implementation', stars: 3, obj: 'Prevent a trigger from re-entering itself when its own DML fires the trigger again.', steps: [
+          'Create RecursionGuard.cls with a private static Set<Id> processedIds.',
+          'shouldProcess(Id recordId) — returns true if not yet processed, then adds to the set.',
+          'markProcessed(Id recordId) — adds to the set. reset() — clears the set (for testing).',
+          'Write a trigger on Account (after update) that updates Description when Health_Score__c changes, guarded by RecursionGuard.',
+          'Write a test that updates Health_Score__c and verifies Description was updated exactly once, resetting the guard at the start of each test.',
+        ], verify: 'No infinite loop; the trigger fires exactly twice (before validation + after update).' },
+        { t: 'proj', id: 'MP3', title: 'Lead Auto-Assignment Engine', stars: 3, obj: 'Build a complete trigger-driven lead routing system.', reqs: [
+          'Create custom metadata Lead_Routing_Rule__mdt with Industry__c (text), Owner__c (lookup to User) and Priority__c (number).',
+          'Create LeadAutoAssignmentTrigger on Lead (before insert): collect all Industry values, query matching rules sorted by Priority__c, assign OwnerId from the first match, and set Assignment_Source__c to \'Rule: \' + rule.Name.',
+          'Create a handler class LeadAssignmentHandler.cls with with sharing.',
+          'Write LeadAssignmentHandlerTest.cls with 5 leads across 3 industries (some matching, some not), assertions that matches are assigned and non-matches keep the default owner, plus a bulk test of 200 leads in one insert.',
+        ], success: 'Trigger is thin (one line delegating to handler). Handler is bulkified. All tests pass.' },
       ]
     },
     {
-      title: 'Capstone: Certification Quiz Platform', mins: 15,
+      title: 'S4 · Async Apex & Platform Events (Phase 5)', mins: 15,
       blocks: [
-        { t: 'p', x: 'The capstone project (★★★★) combines every phase into a single buildable application: a quiz platform with custom objects, triggers, async jobs, platform events, invocable Apex, LWC quiz UI, REST API, and a full CI/CD pipeline.' },
-        { t: 'table', head: ['Component', 'Phase Reference'], rows: [
-          ['Data model (Quiz, Question, Answer objects)', 'Phase 1'],
-          ['Service layer with collections and exceptions', 'Phase 2'],
-          ['SOQL/SOSL for question queries', 'Phase 3'],
-          ['Triggers for validation and notifications', 'Phase 4'],
-          ['Batch stats aggregation, Queueable sync', 'Phase 5'],
-          ['InvocableMethod for Flow scoring', 'Phase 6'],
-          ['LWC quiz interface, VF admin page', 'Phases 7–8'],
-          ['100% test coverage with mocks', 'Phase 9'],
-          ['Map joins for performance', 'Phase 10'],
-          ['REST API, platform events', 'Phase 11'],
-          ['GitHub Actions CI/CD pipeline', 'Phase 12'],
-        ]},
-        { t: 'callout', kind: 'tip', x: 'Check your work against 15-Answers-and-Results.md after every exercise. Full Apex code, SOQL, XML, and expected output included.' },
+        { t: 'ex', id: '4.1', title: 'Queueable Apex Lifecycle', stars: 1, obj: 'Enqueue a job, track it, and handle failures.', steps: [
+          'Create SimpleQueueable.cls implementing Queueable with a constructor taking an Async_Job_Monitor__c Id.',
+          'In execute, set Job_Status__c = \'Running\', do work, then set Job_Status__c = \'Completed\'.',
+          'Add a Boolean shouldFail constructor parameter that causes an exception in execute.',
+          'In anonymous Apex, create an Async_Job_Monitor__c with Job_Type__c = \'Queueable\', enqueue the job, wait, then query the monitor to see the status change.',
+          'Repeat with shouldFail = true and verify Job_Status__c = \'Failed\' and the error message is captured.',
+        ], verify: 'Status transitions work; the exception is caught and recorded.' },
+        { t: 'ex', id: '4.2', title: 'Batch Apex with QueryLocator', stars: 2, obj: 'Process a large dataset in chunks using Batch Apex.', steps: [
+          'Insert 500 Accounts with varied Health_Score__c values.',
+          "Create ScoreBatch.cls implementing Database.Batchable<sObject>: start returns Database.getQueryLocator('SELECT Id, Health_Score__c FROM Account'); execute clamps scores to 0–100 and sets null to 70 in one DML; finish logs completion.",
+          'Execute with scope 200 and count how many batches ran.',
+          'Execute with scope 2000 and compare.',
+          'Assert all accounts have valid scores after batch completion.',
+        ], verify: 'Scope 200 = 3 batches. Scope 2000 = 1 batch. All scores are 0–100.' },
+        { t: 'ex', id: '4.3', title: 'Platform Event Round Trip', stars: 2, obj: 'Publish events and verify the subscriber materializes records.', steps: [
+          'Create a platform event Test_Notification__e with Message__c (text) and Source__c (text).',
+          'Create TestNotificationTrigger on Test_Notification__e (after insert) that creates an Integration_Log__c for each event with Payload__c = evt.Message__c.',
+          'In anonymous Apex, publish 5 events in ONE EventBus.publish call.',
+          'Query Integration_Log__c and verify 5 records were created.',
+          'Add a recursion guard using TriggerHandlerService.suppress / restore.',
+        ], verify: '5 events → 5 log records. No infinite loop.' },
+        { t: 'proj', id: 'MP4', title: 'Data Sync Pipeline', stars: 3, obj: 'Build an end-to-end data synchronization pipeline using Queueable, Batch, and Platform Events.', reqs: [
+          'Create SyncConfig__c custom metadata with Object_Name__c, Last_Sync_Date__c and Batch_Size__c.',
+          'Build DataSyncService.cls with startSync(String objectName) that reads the config, enqueues a Queueable which updates Last_Sync_Date__c and publishes a Sync_Event__e platform event.',
+          'The Sync_Event__e subscriber trigger creates an Integration_Log__c entry.',
+          'Write DataSyncServiceTest.cls using Test.startTest()/Test.stopTest(); assert the config was updated, the event was published and materialized as a log.',
+          'Handle the recursion guard between the event subscriber and the log trigger.',
+        ], success: 'Full pipeline works: enqueue → config update → event publish → log creation. No recursion.' },
+      ]
+    },
+    {
+      title: 'S5 · Automation: Flows & Apex (Phase 6)', mins: 14,
+      blocks: [
+        { t: 'ex', id: '5.1', title: '@InvocableMethod for Flow', stars: 1, obj: 'Expose an Apex method to Flow Builder.', steps: [
+          'Create ScoreCalculatorService.cls with an @InvocableMethod that takes List<Request> and returns List<Result>.',
+          'Request inner class: @InvocableVariable public Integer rawScore. Result inner class: @InvocableVariable public Integer clampedScore.',
+          'Create a test class that calls the method directly (static Apex call) and asserts clamping behavior.',
+          'Test edge cases: null input, negative, 0, 100, 150.',
+        ], code: { lang: 'apex', x: `@InvocableMethod(label='Calculate Score' description='Clamps a score to 0-100.')
+public static List<Result> calculate(List<Request> requests) {
+    // clamp each rawScore to 0..100 and return as Result
+}` }, verify: 'Method is static, takes List<Request>, returns List<Result>. All edge cases pass.' },
+        { t: 'ex', id: '5.2', title: 'Flow vs Trigger Decision Matrix', stars: 2, obj: 'Document when to use Flow vs Apex for a set of scenarios.', steps: [
+          '(a) Set Health_Score__c to 70 when a new Account is created with a blank score.',
+          '(b) Send a custom email to the Account owner when the score drops below 30.',
+          '(c) Recalculate scores for all Accounts nightly in a batch.',
+          '(d) Show a screen collecting user input before creating a Contact.',
+          '(e) Call an external API when an Opportunity closes.',
+          '(f) Create 3 child records when an Account is created.',
+          'For each scenario write a 1-sentence justification defending Flow or Apex.',
+          'For (a) and (b) build both a before-save Flow AND a before-trigger, then compare the DML footprint.',
+        ], verify: 'You can defend each choice with a specific Apex/Flow limitation or advantage.' },
+        { t: 'proj', id: 'MP5', title: 'Onboarding Wizard', stars: 3, obj: 'Build a screen Flow that collects user input and calls invocable Apex.', reqs: [
+          'Create OnboardingService.cls with an @InvocableMethod taking Company Name, Contact Name and Industry that creates an Account and Contact in one transaction and returns the Account Id.',
+          'Create a Screen Flow Onboarding_Wizard: Screen 1 (Company Name required, Industry picklist), Screen 2 (Contact First Name / Last Name required), Apex Action calling OnboardingService, Screen 3 showing "Account created: {!accountId}".',
+          'Write OnboardingServiceTest.cls covering the invocable method, and deploy both the Apex class and the Flow metadata.',
+        ], success: 'Flow is activatable; Apex test passes; the invocable creates both records.' },
+      ]
+    },
+    {
+      title: 'S6 · UI: Visualforce, Aura & LWC (Phases 7–8)', mins: 22,
+      blocks: [
+        { t: 'ex', id: '6.1', title: 'Visualforce Custom Controller', stars: 1, obj: 'Build a search page with a custom controller.', steps: [
+          'Create AccountSearchController.cls with public properties searchTerm (String) and accounts (List<Account>), and a search() method querying Accounts by Name LIKE :searchTerm with limit 50.',
+          'Create AccountSearchPage.page with controller="AccountSearchController", an input bound to {!searchTerm}, a command button calling {!search} with reRender="results", a pageBlockTable rendering {!accounts} with Name and Industry columns, and apex:pageMessages.',
+          'Open the page in the browser and test a search.',
+        ], verify: 'Partial page refresh works (reRender). No full page reload on search.' },
+        { t: 'ex', id: '6.2', title: 'Aura Component with Server Call', stars: 2, obj: 'Build an Aura component that calls @AuraEnabled Apex.', steps: [
+          'Create AccountAuraController.cls with an @AuraEnabled(cacheable=true) getTopAccounts() returning the top 10 Accounts by Health_Score__c.',
+          'Create an Aura component accountAuraList with an init handler calling c.getTopAccounts, an aura:iteration rendering each Account Name/Score, and an aura:registerEvent for AccountSelected.',
+          'Create the AccountSelected application event definition.',
+          'On row click, fire the application event with the Account Id.',
+        ], code: { lang: 'apex', x: `@AuraEnabled(cacheable=true)
+public static List<Account> getTopAccounts() {
+    return [SELECT Id, Name, Health_Score__c FROM Account
+            ORDER BY Health_Score__c DESC LIMIT 10];
+}` }, verify: '$A.enqueueAction returns data. Application event fires on click.' },
+        { t: 'ex', id: '6.3', title: 'LWC with Wire and Imperative', stars: 2, obj: 'Build an LWC with both @wire (read) and imperative (write) paths.', steps: [
+          'Create LwcAccountList with @wire calling LwcDataService.getAccountsWithContacts, a lightning-datatable displaying accounts, and wire {data, error} handling.',
+          'Add a "Refresh" button that calls refreshApex to force re-fetch.',
+          'Add an imperative "Create Test Account" button that calls an @AuraEnabled (non-cacheable) method and then refreshApex.',
+          'Write the .js-meta.xml targeting lightning__AppPage, then deploy and add to a page via App Builder.',
+        ], verify: 'Wire loads data on init. Imperative creates a record. Refresh shows updated data.' },
+        { t: 'ex', id: '6.4', title: 'LWC Parent-Child Communication', stars: 2, obj: 'Pass data down with @api and up with CustomEvent.', steps: [
+          'Create parent accountManager and child accountCard.',
+          'Parent passes account to child via @api account.',
+          'Child renders account details and has a "Delete" button.',
+          'On delete, child dispatches CustomEvent(\'accountdelete\', { detail: this.account.Id }).',
+          'Parent handles onaccountdelete and removes the account from its tracked list.',
+          'Verify the child re-renders when the parent list changes.',
+        ], verify: 'Data flows down via @api and up via CustomEvent. No imports needed for event dispatch.' },
+        { t: 'proj', id: 'MP6', title: 'Full-Stack Account Dashboard', stars: 3, obj: 'Build a complete dashboard with Visualforce, Aura, and LWC approaches.', reqs: [
+          'Visualforce AccountDashboard.page: account list with health scores, inline edit of Health_Score__c with save, apex:commandButton + reRender.',
+          'Aura accountDashboardAura: wired data load, application event for selection, child detail panel showing the selected Account Contacts.',
+          'LWC accountDashboardLwc: @wire + lightning-datatable, imperative save, refreshApex after save, custom event for selection.',
+          'All three share the same @AuraEnabled Apex controller.',
+          'Write tests for the controller methods.',
+        ], success: 'All three UI approaches work. Controller is shared. Tests pass.' },
+      ]
+    },
+    {
+      title: 'S7 · Testing & Debugging (Phase 9)', mins: 16,
+      blocks: [
+        { t: 'ex', id: '7.1', title: '@TestSetup and Data Isolation', stars: 1, obj: 'Verify SeeAllData=false behavior.', steps: [
+          'Create DataIsolationTest.cls with @TestSetup inserting 3 Accounts.',
+          'onlySetupDataVisible: query all Accounts and assert exactly 3 exist (no org data leaked).',
+          'secondTestSeesSameSetupData: assert exactly 3 exist (setup data shared across methods).',
+          'addingRecordsWithinMethod: insert 2 more, query and assert 5 total (3 setup + 2 method-level).',
+        ], verify: 'All three assertions pass. Data isolation is proven.' },
+        { t: 'ex', id: '7.2', title: 'Test.startTest/stopTest for Queueable', stars: 2, obj: 'Force async completion and verify fresh governor limits.', steps: [
+          'Write a test that enqueues SimpleQueueable(monitorId) between Test.startTest() and Test.stopTest().',
+          'Inside the test, print Limits.getQueries() before and after Test.startTest() and verify the governor counters reset in the start/stop window.',
+          'Assert the Async_Job_Monitor__c record has Job_Status__c = \'Completed\'.',
+        ], code: { lang: 'apex', x: `Test.startTest();
+System.enqueueJob(new SimpleQueueable(monitorId));
+Test.stopTest();
+// assertions here — job has completed synchronously` }, verify: 'Without startTest/stopTest, the assertion would fail (job not yet executed).' },
+        { t: 'ex', id: '7.3', title: 'HTTP Callout Mock', stars: 3, obj: 'Mock an external API and test retry logic.', steps: [
+          'Create MockApiService implements HttpCalloutMock: first call returns 502, second returns 200, tracking the attempt count.',
+          'Write a test using Test.setMock(HttpCalloutMock.class, new MockApiService()) and assert the callout succeeds.',
+          'Assert the Integration_Log__c record shows Retry_Count__c = 1.',
+          'Create a second mock MockApiFailAll that always returns 500.',
+          'Test that after retries the result is success = false.',
+        ], verify: 'Both mocks are installable. Retry count is accurate in the log.' },
+        { t: 'proj', id: 'MP7', title: 'Comprehensive Test Suite', stars: 3, obj: 'Write tests for the Lead Auto-Assignment Engine (Mini Project 3).', reqs: [
+          '@TestSetup creates 3 Users (admin, standard, read-only), 5 Lead Routing Rules across 4 industries, and 10 Leads (some matching, some not).',
+          'leadsWithMatchingRulesAreAssignedCorrectly — assert OwnerId matches the rule.',
+          'leadsWithoutMatchingRulesKeepDefaultOwner — assert owner is the running user.',
+          'bulkInsertHandles200Leads — insert 200 leads, assert no governor violations.',
+          'updateTriggerReEvaluatesAssignment — change Lead Industry and verify reassignment.',
+          'recursionGuardPreventsInfiniteLoop — trigger update that would re-fire, assert stable.',
+          'All assertions use System.assertEquals with descriptive messages.',
+        ], success: 'sf apex run test -c shows ≥75% coverage. All tests green.' },
+      ]
+    },
+    {
+      title: 'S8 · Performance & Large Data Volumes (Phase 10)', mins: 13,
+      blocks: [
+        { t: 'ex', id: '8.1', title: 'Query Plan Analysis', stars: 1, obj: 'Compare selective vs non-selective queries.', steps: [
+          'Insert 500 Accounts with varied Industries and Health Scores.',
+          'Open Developer Console → Query Plan and paste each query, recording the cost: Health_Score__c > 50 (indexed field), Name LIKE \'%Corp%\' (leading wildcard), Name LIKE \'Corp%\' (no leading wildcard), and Health_Score__c > 50 AND Industry = \'Technology\' (compound).',
+          'Add a custom index on Health_Score__c and re-plan the first query.',
+          'Document the cost differences.',
+        ], verify: 'Leading wildcard shows highest cost. Indexed field shows lowest.' },
+        { t: 'ex', id: '8.2', title: 'Map Join vs Nested Loop', stars: 2, obj: 'Measure the performance improvement of Map joins.', steps: [
+          'Insert 10 Accounts and 500 Contacts distributed across them.',
+          'Write nestedLoopJoin(List<Account>, List<Contact>) using an O(n*m) nested loop matching c.AccountId == a.Id, tracking Limits.getCpuTime() before and after.',
+          'Write mapJoin(...) that builds a Map<Id, List<Contact>> by AccountId and looks up via map.get(acc.Id), also tracking CPU time.',
+          'Call both in a test and print both CPU times.',
+          'Assert the map join is faster.',
+        ], verify: 'Map join CPU time is significantly lower than the nested loop.' },
+        { t: 'proj', id: 'MP8', title: 'LDV Migration Tool', stars: 3, obj: 'Build a batch process that migrates Account data with performance monitoring.', reqs: [
+          'Create AccountMigrationBatch.cls implementing Database.Batchable<sObject>, Database.Stateful: start returns a QueryLocator over all Accounts; execute transforms data (normalizes names, clamps scores), uses a Map for child Contact lookups and updates in one DML; finish logs total records, total CPU and total DML statements.',
+          'Instance fields track totalRecords, totalBatches and maxCpuInBatch.',
+          'Create AccountMigrationTest.cls inserting 500 accounts with contacts, running the batch with scope 200, asserting normalized data and accurate Stateful counters.',
+          'Monitor with Async_Job_Monitor__c.',
+        ], success: 'Batch processes all records. Stateful counters are accurate. Performance is within limits.' },
+      ]
+    },
+    {
+      title: 'S9 · Integration & Enterprise Patterns (Phase 11)', mins: 17,
+      blocks: [
+        { t: 'ex', id: '9.1', title: 'Named Credential Callout', stars: 1, obj: 'Make a callout using a Named Credential.', steps: [
+          'In Setup → Named Credentials, create Mock_API pointing to a mockable endpoint.',
+          'Write an anonymous Apex block that calls callout:Mock_API/test and debugs the status and body.',
+          'Inside a test, mock the callout and assert the response.',
+          "Verify the Integration_Log__c captures the endpoint and status.",
+        ], code: { lang: 'apex', x: `HttpRequest req = new HttpRequest();
+req.setEndpoint('callout:Mock_API/test');
+req.setMethod('GET');
+Http http = new Http();
+HttpResponse res = http.send(req);
+System.debug('Status: ' + res.getStatusCode());
+System.debug('Body: ' + res.getBody());` }, verify: 'Named Credential reference works without hardcoded URLs. Log entry is created.' },
+        { t: 'ex', id: '9.2', title: 'REST Resource CRUD', stars: 2, obj: 'Build an inbound REST API with full CRUD operations.', steps: [
+          'Create @RestResource(urlMapping=\'/MyService/v1/items/*\') with @HttpGet (list), @HttpPost (create, return 201 + Id), @HttpPatch (update by Id from URI), @HttpDelete (delete by Id from URI).',
+          'Write RestServiceTest.cls calling the service methods directly (not via HTTP) using RestContext.request / RestContext.response.',
+          'Verify each verb produces the correct status code (200, 201, 204) and records.',
+        ], verify: 'Each verb works. Status codes are correct (200, 201, 204).' },
+        { t: 'ex', id: '9.3', title: 'Event-Driven Integration Pipeline', stars: 3, obj: 'Build a publish-subscribe pipeline with audit logging.', steps: [
+          'Study the repo pipeline: IntegrationService → Integration_Log__c → IntegrationLogTrigger → EventPublisherService → Integration_Event__e → IntegrationEventSubscriberTrigger → Integration_Log__c.',
+          'Reproduce this pipeline for a new custom object Webhook_Event__e.',
+          'Add recursion guards at every trigger level.',
+          'Write a test that publishes 10 events, verifies 10 log entries, verifies no infinite recursion, and asserts correlation IDs are consistent.',
+        ], verify: 'Pipeline works end-to-end. Recursion guards are effective.' },
+        { t: 'proj', id: 'MP9', title: 'External API Hub', stars: 3, obj: 'Build a complete integration layer with outbound callouts, inbound REST, and event-driven sync.', reqs: [
+          'Outbound ExternalApiService.cls: Named Credentials, retry logic (5xx → retry once → log failure), Correlation Id tracking, Integration_Log__c audit trail.',
+          'Inbound WebhookReceiver.cls: @RestResource receiving external webhooks, validates the payload, creates a Webhook_Event__e, returns 200 on success / 400 on bad payload.',
+          'Event Subscriber WebhookEventTrigger on Webhook_Event__e creates Integration_Log__c with direction \'Inbound\', with a recursion guard via TriggerHandlerService.',
+          'Test suite: mock for outbound callouts, REST context simulation for inbound, event publish + subscriber assertion, and the end-to-end pipeline (callout → log → trigger → event → subscriber → log).',
+        ], success: 'All tests pass. Pipeline is fully auditable. No recursion.' },
+      ]
+    },
+    {
+      title: 'S10 · Release Management & CI/CD (Phase 12)', mins: 13,
+      blocks: [
+        { t: 'ex', id: '10.1', title: 'Scratch Org Lifecycle', stars: 1, obj: 'Create, deploy, test, and destroy a scratch org.', steps: [
+          'sf org create scratch -f config/project-scratch-def.json -a test1 -d 1',
+          'sf project deploy start --source-dir force-app --target-org test1',
+          'sf apex run test -c --target-org test1 --test-level RunLocalTests --result-format human',
+          'Record the coverage percentage.',
+          'sf org delete scratch --target-org test1 --no-prompt',
+          'Repeat steps 1–5 with a second scratch org (test2) to prove the process is repeatable.',
+        ], verify: 'Both orgs created and destroyed. Coverage is consistent.' },
+        { t: 'ex', id: '10.2', title: 'Destructive Deployment', stars: 2, obj: 'Remove metadata via destructive changes.', steps: [
+          'Create a dummy class StaleHelper.cls (empty class) and deploy it to a scratch org.',
+          'Verify it exists in the coverage report.',
+          'Create destructiveChanges.xml listing StaleHelper as an ApexClass member with the correct API version.',
+          'Create an empty package.xml for the same API version.',
+          'Deploy both files together, then verify StaleHelper no longer exists.',
+        ], code: { lang: 'xml', x: `<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>StaleHelper</members>
+        <name>ApexClass</name>
+    </types>
+    <version>68.0</version>
+</Package>` }, verify: 'Class is removed from the org. Deployment succeeds with both files.' },
+        { t: 'proj', id: 'MP10', title: 'Full CI/CD Pipeline', stars: 3, obj: 'Set up a GitHub Actions CI/CD pipeline for the repo.', reqs: [
+          'Create .github/workflows/ci.yml triggered on push to main and pull_request: checkout → install SF CLI → authorize DevHub → create scratch org → deploy → lint → test with coverage → scan → teardown.',
+          'Add a package.json lint script: "lint": "eslint force-app/**/*.js".',
+          'Add an sf scanner step for Apex static analysis.',
+          'Configure the pipeline to fail on lint errors, test failures, and coverage below 75%.',
+          'Add a separate deploy-prod job that runs only on main push (not PRs), uses sf project deploy start --test-level RunLocalTests, and includes a manual approval gate (GitHub Environments).',
+        ], success: 'Pipeline runs on PR. Lint/test/scan gates work. Deploy-prod requires approval.' },
+        { t: 'callout', kind: 'tip', x: 'Done with every section? Move on to the capstone — it combines all 13 phases into one buildable application. Solutions for every exercise are in 15-Answers-and-Results.md.' },
+      ]
+    },
+    {
+      title: 'Capstone · Certification Quiz Platform', mins: 24,
+      blocks: [
+        { t: 'p', x: 'The capstone is a single application that touches every phase of the roadmap: data model, service layer, SOQL/SOSL, triggers, async, flows, three UI approaches, testing, performance, integration, and CI/CD. Build it section by section and check the answers file after each milestone.' },
+        { t: 'proj', id: 'CAP', title: 'Certification Quiz Platform', stars: 4, obj: 'Build a complete quiz application using every phase of the roadmap.', reqs: [
+          { h: 'Phase 1–2 · Data Model & Apex', items: [
+            'Custom objects: Quiz__c, Question__c, Answer__c, Quiz_Result__c.',
+            'Relationships: Quiz → Questions (master-detail), Question → Answers (master-detail).',
+            'Service class with full CRUD, collections, and custom exceptions.',
+          ]},
+          { h: 'Phase 3 · SOQL & SOSL', items: [
+            'Query questions by difficulty, domain, and certification type.',
+            'SOSL for full-text search across question text.',
+            'Aggregate queries for score statistics.',
+          ]},
+          { h: 'Phase 4 · Triggers', items: [
+            'Before-insert trigger on Question__c to validate and normalize text.',
+            'After-update trigger on Quiz_Result__c to publish a notification event.',
+          ]},
+          { h: 'Phase 5 · Async & Events', items: [
+            'Queueable job to calculate quiz statistics.',
+            'Platform event Quiz_Completed__e published after quiz submission.',
+            'Batch job for nightly statistics aggregation.',
+          ]},
+          { h: 'Phase 6 · Flows', items: [
+            '@InvocableMethod for quiz scoring callable from Flow.',
+            'Screen Flow for the quiz-taking wizard.',
+          ]},
+          { h: 'Phases 7–8 · UI', items: [
+            'LWC quiz interface with @wire for questions and imperative submit.',
+            'Aura component for the leaderboard.',
+            'Visualforce page for admin question management.',
+          ]},
+          { h: 'Phase 9 · Testing', items: [
+            '@TestSetup with question bank.',
+            'HTTP mock for external scoring API.',
+            'System.runAs for multi-user quiz scenarios.',
+            '100% coverage with meaningful assertions.',
+          ]},
+          { h: 'Phase 10 · Performance', items: [
+            'Map joins for answer grouping.',
+            'Batch job for large-scale statistics.',
+            'Index-aware queries.',
+          ]},
+          { h: 'Phase 11 · Integration', items: [
+            'REST API for external quiz submission.',
+            'Platform events for quiz completion notifications.',
+            'Integration log audit trail.',
+          ]},
+          { h: 'Phase 12 · CI/CD', items: [
+            'GitHub Actions pipeline.',
+            'Destructive changes for deprecated quiz versions.',
+            'Package versioning.',
+          ]},
+        ], success: 'sf apex run test -c shows ≥75% coverage with all tests passing; all metadata deploys cleanly; the LWC renders in a scratch org; the REST endpoint is callable from Postman; the pipeline runs without errors.' },
+        { t: 'callout', kind: 'warn', x: 'Review the common-mistakes checklist at the end of 15-Answers-and-Results.md before starting the capstone — it points out the exact pitfalls (recursion, loop DML, non-bulk queries) this project is designed to catch.' },
       ]
     },
   ],
@@ -1125,13 +1483,12 @@ sf apex run test -c -o dev` },
         opts: ['Zero extra DML', 'One extra DML', 'Two extra DML', 'No DML possible'], a: 0, why: 'Before triggers edit Trigger.new in memory; the platform saves the changes with the original DML.' },
       { q: 'To prevent trigger recursion, use.',
         opts: ['A static Set<Id> guard', 'System.runAs', 'Database.Stateful', 'Test.startTest'], a: 0, why: 'A static Set<Id> persists across trigger invocations within a transaction, preventing re-entry.' },
-      { q: 'The capstone project touches how many roadmap phases?',
-        opts: ['5', '8', '10', 'All 13'], a: 3, why: 'The capstone combines every phase: data model, Apex, SOQL, triggers, async, flows, UI, testing, performance, integration, and CI/CD.' },
+      { q: 'In Test.setFixedSearchResults the returned List<List<SObject>> groups results by.',
+        opts: ['Alphabetically', 'Object order in the RETURNING clause', 'Row count', 'Modified date'], a: 1, why: 'Each inner list maps to the object order declared in the SOSL RETURNING clause (Accounts first, then Contacts).' },
     ]
   }
 },
 
-/* -------------------------------------------------------------------------- */
 /* PHASE 15 - ANSWERS & RESULTS                                                */
 /* -------------------------------------------------------------------------- */
 {
@@ -1202,7 +1559,7 @@ sf apex run test -c -o dev` },
           'MockApiService + MockApiFailAll — HttpCalloutMock implementations',
           'destructiveChanges.xml + package.xml — removal workflow',
           '.github/workflows/ci.yml — full CI/CD pipeline',
-          'Common mistakes reference table covering all 33 exercises',
+          'Common mistakes reference table covering all 31 exercises',
         ]},
         { t: 'callout', kind: 'tip', x: 'The Common Mistakes table at the end of 15-Answers-and-Results.md is a quick-reference checklist — review it before attempting the capstone project.' },
       ]
@@ -1212,7 +1569,7 @@ sf apex run test -c -o dev` },
     title: 'Phase 15 Quiz - Solutions Review', mins: 3,
     questions: [
       { q: 'The Common Mistakes table in the answers file covers how many exercises?',
-        opts: ['10', '20', '33', '50'], a: 2, why: 'The table lists one common mistake per exercise, covering all 33 exercises across 10 sections.' },
+        opts: ['10', '20', '31', '50'], a: 2, why: 'The table lists one common mistake per exercise, covering all 31 exercises across 10 sections.' },
       { q: 'Anonymous Apex scripts in the answers can be run in.',
         opts: ['VS Code terminal only', 'Developer Console → Execute Anonymous', 'GitHub Actions', 'Flow Builder'], a: 1, why: 'Anonymous Apex scripts are designed for the Developer Console Execute Anonymous window or sf apex run.' },
       { q: 'The capstone project requires which minimum coverage?',
