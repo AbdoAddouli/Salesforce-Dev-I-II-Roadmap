@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Developer I &amp; II Academy - Learn Salesforce Development</title>
+  <meta name="description" content="Interactive, self-paced course: 13 modules covering the full Salesforce Platform Developer I & II blueprint - Apex, SOQL, triggers, async, LWC, integrations, performance and certification prep." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9745;</text></svg>" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+  <div class="shell">
+
+    <aside class="sidebar">
+      <!-- filled by app.js -->
+    </aside>
+
+    <div class="content">
+
+      <header class="topbar">
+        <button class="menu-btn" id="menuBtn" aria-label="Menu">&#9776;</button>
+        <a class="brand" href="#/">
+          <span class="logo">&#9745;</span>
+          <span class="brand-text">
+            <b>Developer I &amp; II</b><small>Academy</small>
+          </span>
+        </a>
+        <div class="tb-search">
+          <input id="topSearch" type="search" placeholder="Search lessons, concepts.  (press /)" autocomplete="off" />
+          <span class="kbd">/</span>
+        </div>
+        <div class="tb-meter" title="Roadmap progress">
+          <div class="tb-bar"><i id="topBar"></i></div>
+          <span id="topPct" class="tb-pct">0%</span>
+        </div>
+      </header>
+
+      <main id="view"></main>
+
+      <footer class="footer">
+        <a href="https://github.com/AbdoAddouli/Salesforce-Dev-I-II-Roadmap" target="_blank" rel="noopener">AbdoAddouli/Salesforce-Dev-I-II-Roadmap</a>
+        <span>&middot;</span>
+        <span>Salesforce Developer I &amp; II learning academy - API 68.0</span>
+        <span>&middot;</span>
+        <span>Progress is saved in your browser</span>
+      </footer>
+
+    </div>
+  </div>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script src="assets/curriculum.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>
