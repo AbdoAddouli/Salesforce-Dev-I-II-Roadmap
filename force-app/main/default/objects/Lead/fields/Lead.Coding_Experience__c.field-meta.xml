@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Lead.Coding_Experience__c</fullName>
+    <externalId>false</externalId>
+    <label>Coding Experience</label>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>None</fullName>
+                <default>true</default>
+                <label>None</label>
+            </value>
+            <value>
+                <fullName>Less than 1 Year</fullName>
+                <default>false</default>
+                <label>Less than 1 Year</label>
+            </value>
+            <value>
+                <fullName>1-2 Years</fullName>
+                <default>false</default>
+                <label>1-2 Years</label>
+            </value>
+            <value>
+                <fullName>3+ Years</fullName>
+                <default>false</default>
+                <label>3+ Years</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

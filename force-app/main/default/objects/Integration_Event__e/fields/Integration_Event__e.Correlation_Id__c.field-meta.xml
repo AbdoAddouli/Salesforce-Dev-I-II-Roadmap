@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Integration_Event__e.Correlation_Id__c</fullName>
+    <externalId>false</externalId>
+    <label>Correlation Id</label>
+    <length>100</length>
+    <type>Text</type>
+</CustomField>

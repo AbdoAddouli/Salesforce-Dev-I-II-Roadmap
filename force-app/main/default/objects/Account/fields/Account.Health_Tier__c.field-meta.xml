@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Account.Health_Tier__c</fullName>
+    <externalId>false</externalId>
+    <label>Health Tier</label>
+    <formula>IF(Health_Score__c >= 80, "Green", IF(Health_Score__c >= 50, "Amber", "Red"))</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <type>Text</type>
+</CustomField>

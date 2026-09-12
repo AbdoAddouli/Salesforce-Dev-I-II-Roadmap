@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Event.Level__c</fullName>
+    <externalId>false</externalId>
+    <label>Level</label>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Platform Developer I</fullName>
+                <default>false</default>
+                <label>Platform Developer I</label>
+            </value>
+            <value>
+                <fullName>Platform Developer II</fullName>
+                <default>false</default>
+                <label>Platform Developer II</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>User.Dev_Milestone__c</fullName>
+    <externalId>false</externalId>
+    <label>Dev Milestone</label>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Basics</fullName>
+                <default>false</default>
+                <label>Basics</label>
+            </value>
+            <value>
+                <fullName>Data Model</fullName>
+                <default>false</default>
+                <label>Data Model</label>
+            </value>
+            <value>
+                <fullName>Apex</fullName>
+                <default>false</default>
+                <label>Apex</label>
+            </value>
+            <value>
+                <fullName>Triggers</fullName>
+                <default>false</default>
+                <label>Triggers</label>
+            </value>
+            <value>
+                <fullName>Async</fullName>
+                <default>false</default>
+                <label>Async</label>
+            </value>
+            <value>
+                <fullName>LWC</fullName>
+                <default>false</default>
+                <label>LWC</label>
+            </value>
+            <value>
+                <fullName>Testing</fullName>
+                <default>false</default>
+                <label>Testing</label>
+            </value>
+            <value>
+                <fullName>Integration</fullName>
+                <default>false</default>
+                <label>Integration</label>
+            </value>
+            <value>
+                <fullName>Certified</fullName>
+                <default>false</default>
+                <label>Certified</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Exam_Domain__c</fullName>
+    <externalId>false</externalId>
+    <label>Exam Domain</label>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Developer Fundamentals</fullName>
+                <default>false</default>
+                <label>Developer Fundamentals</label>
+            </value>
+            <value>
+                <fullName>Process Automation and Logic</fullName>
+                <default>false</default>
+                <label>Process Automation and Logic</label>
+            </value>
+            <value>
+                <fullName>User Interface</fullName>
+                <default>false</default>
+                <label>User Interface</label>
+            </value>
+            <value>
+                <fullName>Testing, Debugging, and Deployment</fullName>
+                <default>false</default>
+                <label>Testing, Debugging, and Deployment</label>
+            </value>
+            <value>
+                <fullName>Advanced Developer Fundamentals</fullName>
+                <default>false</default>
+                <label>Advanced Developer Fundamentals</label>
+            </value>
+            <value>
+                <fullName>Performance</fullName>
+                <default>false</default>
+                <label>Performance</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

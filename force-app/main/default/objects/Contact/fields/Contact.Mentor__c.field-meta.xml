@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Contact.Mentor__c</fullName>
+    <externalId>false</externalId>
+    <label>Mentor</label>
+    <lookupFilter><active>false</active><booleanFilter></booleanFilter><filterItems><field>@RECORDTYPE</field><operation>equals</operation><value>Master Record Type</value></filterItems></lookupFilter>
+    <referenceTo>Contact</referenceTo>
+    <relationshipLabel>Mentees</relationshipLabel>
+    <relationshipName>Mentees</relationshipName>
+    <type>Lookup</type>
+</CustomField>

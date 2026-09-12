@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Event.Session_Type__c</fullName>
+    <externalId>false</externalId>
+    <label>Session Type</label>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Study Group</fullName>
+                <default>true</default>
+                <label>Study Group</label>
+            </value>
+            <value>
+                <fullName>Bootcamp</fullName>
+                <default>false</default>
+                <label>Bootcamp</label>
+            </value>
+            <value>
+                <fullName>Mock Exam</fullName>
+                <default>false</default>
+                <label>Mock Exam</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Task_Type__c</fullName>
+    <externalId>false</externalId>
+    <label>Task Type</label>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Code Drill</fullName>
+                <default>true</default>
+                <label>Code Drill</label>
+            </value>
+            <value>
+                <fullName>Quiz</fullName>
+                <default>false</default>
+                <label>Quiz</label>
+            </value>
+            <value>
+                <fullName>Lab</fullName>
+                <default>false</default>
+                <label>Lab</label>
+            </value>
+            <value>
+                <fullName>Review</fullName>
+                <default>false</default>
+                <label>Review</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>
