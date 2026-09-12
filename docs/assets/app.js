@@ -397,6 +397,85 @@ function renderLesson(mod, li) {
   requestAnimationFrame(() => window.scrollTo(0, 0));
 }
 
+/* Minimal markdown renderer for the exercise answer blocks */
+function mdInline(t) {
+  return t
+    .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+    .replace(/`([^`]+)`/g, '<code class="inline">$1</code>');
+}
+
+function md(src) {
+  const lines = String(src || '').split(/\r?\n/);
+  const html = [];
+  let i = 0, inFence = false, fenceBuf = [], fenceLang = '';
+
+  while (i < lines.length) {
+    const line = lines[i];
+
+    if (!inFence && /^```/.test(line)) {
+      inFence = true; fenceLang = (line.match(/^```(\w*)/) || [])[1] || 'text'; fenceBuf = []; i++; continue;
+    }
+    if (inFence) {
+      if (/^```/.test(line)) {
+        html.push(`<div class="codeblock"><div class="cb-head"><span class="cb-lang">${esc(fenceLang || 'text')}</span></div><pre><code>${fenceBuf.map(esc).join('\n')}</code></pre></div>`);
+        inFence = false; fenceBuf = []; fenceLang = ''; i++; continue;
+      }
+      fenceBuf.push(line); i++; continue;
+    }
+    if (/^\s*---\s*$/.test(line)) { i++; continue; }
+
+    const head = line.match(/^(#{2,4})\s+(.*)/);
+    if (head) { const lvl = Math.min(6, head[1].length + 2); html.push(`<h${lvl}>${mdInline(esc(head[2]))}</h${lvl}>`); i++; continue; }
+
+    if (/^\|/.test(line)) {
+      const rows = [];
+      while (i < lines.length && /^\|/.test(lines[i])) { rows.push(lines[i]); i++; }
+      html.push(mdTable(rows));
+      continue;
+    }
+    if (/^\s*[-*]\s+/.test(line)) {
+      const items = [];
+      while (i < lines.length && /^\s*[-*]\s+/.test(lines[i])) { items.push(lines[i].replace(/^\s*[-*]\s+/, '')); i++; }
+      html.push(`<ul class="tick-list">${items.map(x => `<li>${mdInline(esc(x))}</li>`).join('')}</ul>`);
+      continue;
+    }
+    if (/^\s*\d+\.\s+/.test(line)) {
+      const items = [];
+      while (i < lines.length && /^\s*\d+\.\s+/.test(lines[i])) { items.push(lines[i].replace(/^\s*\d+\.\s+/, '')); i++; }
+      html.push(`<ol>${items.map(x => `<li>${mdInline(esc(x))}</li>`).join('')}</ol>`);
+      continue;
+    }
+    if (/^\s*$/.test(line)) { i++; continue; }
+
+    const para = [];
+    while (i < lines.length) {
+      const l = lines[i];
+      if (/^\s*$/.test(l) || /^```/.test(l) || /^\|/.test(l) || /^\s*[-*]\s+/.test(l) || /^\s*\d+\.\s+/.test(l) || /^(#{2,4})\s+/.test(l) || /^\s*---\s*$/.test(l)) break;
+      para.push(l); i++;
+    }
+    if (para.length) html.push(`<p>${mdInline(esc(para.join(' ')))}</p>`);
+  }
+
+  if (inFence && fenceBuf.length) {
+    html.push(`<div class="codeblock"><div class="cb-head"><span class="cb-lang">${esc(fenceLang || 'text')}</span></div><pre><code>${fenceBuf.map(esc).join('\n')}</code></pre></div>`);
+  }
+  return html.join('');
+}
+
+function mdTable(rows) {
+  const parseRow = r => r.replace(/^\|/, '').replace(/\|$/, '').split('|').map(c => c.trim());
+  let head = [], body = [], sep = false;
+  for (let idx = 0; idx < rows.length; idx++) {
+    const r = rows[idx];
+    if (idx === 1 && /^[\s|:-]+$/.test(r.replace(/^\|/, '').replace(/\|$/, ''))) { sep = true; head = parseRow(rows[0]); continue; }
+    if (sep) body.push(parseRow(r)); else head = parseRow(r);
+  }
+  if (!sep) { body = rows.map(parseRow); head = []; }
+  const thead = head.length ? `<thead><tr>${head.map(h => `<th>${mdInline(esc(h))}</th>`).join('')}</tr></thead>` : '';
+  const tbody = `<tbody>${body.map(r => `<tr>${r.map(c => `<td>${mdInline(esc(c))}</td>`).join('')}</tr>`).join('')}</tbody>`;
+  return `<div class="tbl"><table>${thead}${tbody}</table></div>`;
+}
+
 /* Block renderer for the curriculum blocks */
 function renderBlock(b) {
   switch (b.t) {
@@ -442,6 +521,10 @@ function renderBlock(b) {
       const footer = isProject
         ? `<div class="ex-verify">🎯 Success — ${esc(b.success)}</div>`
         : `<div class="ex-verify">✅ Verify — ${esc(b.verify)}</div>`;
+      const hasAnswer = typeof EXERCISE_ANSWERS !== 'undefined' && EXERCISE_ANSWERS[b.id];
+      const answer = hasAnswer
+        ? `<details class="ex-answer"><summary><span class="ea-ico">💡</span><span>Show answer</span><span class="ea-caret">▾</span></summary><div class="ex-answer-body">${md(EXERCISE_ANSWERS[b.id])}</div></details>`
+        : '';
       return `
         <div class="ex-card ${isProject ? 'proj' : ''}" data-stars="${b.stars}">
           <div class="ex-head">
@@ -454,6 +537,7 @@ function renderBlock(b) {
           <div class="ex-label">${isProject ? '📋 Requirements' : '🧭 Instructions'}</div>
           <ol class="ex-list">${lis}</ol>
           ${footer}
+          ${answer}
         </div>`;
     }
     default: return '';
