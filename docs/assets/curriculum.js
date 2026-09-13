@@ -1,6 +1,6 @@
 /* ============================================================================
  * Developer I & II Academy - Curriculum data
- * 15 phases following the `developer Roadmap/` guides. Content is condensed
+ * 17 phases following the `developer Roadmap/` guides. Content is condensed
  * from the phase guides and points back to the real repo artifacts.
  * ============================================================================
  */
@@ -469,7 +469,7 @@ Integer accepted = EventBus.publish(events).size();` },
       title: 'Invocable Methods', mins: 10,
       blocks: [
         { t: 'code', lang: 'apex', x: `public class StudyPlanActions {
-    @InvocableMethod(label='Generate 15-phase plan')
+    @InvocableMethod(label='Generate 17-phase plan')
     public static void generate(List<Request> reqs) {
         for (Request r : reqs) {
             CertificationPrepService.buildStudyPlan(
@@ -1577,6 +1577,220 @@ System.debug('Body: ' + res.getBody());` }, verify: 'Named Credential reference 
     ]
   }
 },
+  {
+    id: 'usecases',
+    n: 16,
+    title: 'Real-World Use Cases',
+    icon: '16',
+    color: '#0891B2',
+    tagline: '3 capstone builds applying every roadmap phase',
+    guide: '16-Real-World-Use-Cases.md',
+    art: [
+      { label: '16-Real-World-Use-Cases.md', href: 'developer Roadmap/16-Real-World-Use-Cases.md' },
+      { label: '17-Use-Case-Solutions.md', href: 'developer Roadmap/17-Use-Case-Solutions.md' },
+    ],
+    objectives: [
+      'Apply all 13 content phases across three realistic business scenarios',
+      'Build end-to-end: triggers, flows, LWC, async, integration and tests',
+      'Add sharing, performance, release and CI/CD to every deliverable',
+      'Attempt each milestone yourself before reading the reference solutions',
+    ],
+    lessons: [
+      {
+        title: 'UC1 · Deal-to-Order Automation (Sales Ops)', mins: 45,
+        blocks: [
+          { t: 'p', x: 'Automate the back office for Northwind B&O: when a BigDeal__c reaches Won, validate it, create a confirmed Order__c with discounted line items, upgrade the Account tier, and publish a platform event so fulfilment gets notified.' },
+          { t: 'callout', kind: 'tip', x: 'Skills on test: triggers + recursion guards (Phase 4), SOQL aggregates and parent-child queries (Phase 3), bulk-safe collections (Phases 1-2), Flow + @InvocableMethod (Phase 6), platform events (Phase 5), scheduled rollup batch (Phases 5 + 10), sharing and CRUD checks (Phase 1), and test isolation via @TestSetup and runAs (Phase 9).' },
+          { t: 'proj', id: 'UC1', title: 'Deal-to-Order Automation', stars: 4, obj: 'Ship a validated, idempotent order pipeline from Won stage to confirmed order and Account rollups.', reqs: [
+            { h: 'Milestone M1 - Validate & default the Big Deal', items: [
+              'BigDealTrigger (one trigger, one handler BigDealHandler) with a recursion guard',
+              'Default WonDate__c when freshly won; block regressing to an open stage',
+              'addError on Won deals missing Account, with Amount <= 0, or future CloseDate',
+            ]},
+            { h: 'Milestone M2 - Deal-to-order service', items: [
+              'OrderService with @InvocableMethod DealRequest/DealResult inner classes',
+              'Parse Product_Summary__c lines (Name|Qty|UnitPrice) into OrderLineItem__c rows',
+              'Apply Discount__c to line totals; verify Order Total equals the sum of lines',
+              'Idempotent: skip creation when an Order__c for the deal already exists',
+            ]},
+            { h: 'Milestone M3 - Record-triggered Flow + event', items: [
+              'Flow Deal To Order on create/update when Stage__c = Won, calling the service',
+              'Surface service messages to the user; validation failures roll the DML back',
+              'Publish BigDealWon_Event__e from the service on success',
+              'Event consumer creates a Fulfilment_Notice__c for non-blocking tracking',
+            ]},
+            { h: 'Milestone M4 - Account tier & rollup batch', items: [
+              'RevenueRollupBatch using QueryLocator and one aggregate SOQL per scope',
+              'Tier ladder on rolling 12-month revenue (100k Silver, 500k Gold, 1M Platinum)',
+              'Healh_Score__c +10 on new won revenue, clamped at 100',
+              'RevenueRollupScheduler scheduling the batch nightly (2:00 AM)',
+            ]},
+            { h: 'Milestone M5 - Sharing & security', items: [
+              'Fulfilment permission set granting edit on orders, read-only Accounts',
+              'with sharing on all service classes plus Schema.isAccessible/isUpdateable guards',
+              'runAs test proving a Standard User sees only permitted data',
+            ]},
+          ], success: 'All 5 milestones pass with sf apex run test -c at 75%+ coverage and a git tag per milestone.' },
+        ]
+      },
+      {
+        title: 'UC2 · SyncHub ERP Integration (Integration)', mins: 45,
+        blocks: [
+          { t: 'p', x: 'Mirror external ERP inventory into Salesforce near-real-time: an inbound REST webhook publishes platform events, a queueable applies them to Inventory__c, a batch performs the 1M-record backfill, and an LWC panel reports sync health.' },
+          { t: 'callout', kind: 'tip', x: 'Skills on test: Named Credentials + HTTP callouts and JSON (Phase 11), Queueable and chaining (Phase 5), QueryLocator batch with scope control (Phase 10), upsert by external id and dynamic SOQL safety (Phase 3), custom exceptions with quarantine logging (Phase 2), HttpCalloutMock (Phase 9), LWC @wire + refreshApex (Phase 8), and a CI/CD workflow on GitHub Actions (Phase 12).' },
+          { t: 'proj', id: 'UC2', title: 'SyncHub ERP Integration', stars: 4, obj: 'Deliver inbound webhook, async event pipeline, backfill batch and a live sync-status LWC.', reqs: [
+            { h: 'Milestone M1 - Webhook endpoint + event', items: [
+              'ERPWebhookResource @RestResource(urlMapping=/ERPWebhook/*) with @HttpPost',
+              'Parse JSON changes and publish one Inventory_Change_Event__e per change',
+              'Return HTTP 200 fast; HTTP 400 with JSON error on malformed payloads',
+            ]},
+            { h: 'Milestone M2 - Queueable consumer + quarantine', items: [
+              'InventorySyncQueueable reading the 100 most recent events',
+              'Upsert Inventory__c by ExternalId__c in one DML; set SyncStatus and LastSyncTime',
+              'Route failures to InboundChangeLog__c with Status Quarantined and error text',
+              'Sync now @AuraEnabled method enqueuing the queueable on demand',
+            ]},
+            { h: 'Milestone M3 - Backfill batch + scheduled run', items: [
+              'InventoryBackfillBatch over records where SyncStatus != In Sync, scope 200',
+              'Mark every chunk processed while respecting Governor limits',
+              'Chunk-level audit of failed batches',
+            ]},
+            { h: 'Milestone M4 - LWC status panel', items: [
+              'erpSyncStatus with @wire(getSyncStats) returning In Sync / Pending / Quarantined counts',
+              'Sync now imperative call + refreshApex after the job lands',
+              'Stat chips render and update reactively',
+            ]},
+            { h: 'Milestone M5 - CI/CD deployment', items: [
+              'force-app/main/default structure and sf project deploy start',
+              'GitHub Actions workflow creating a scratch org, deploying and running tests',
+              'No secrets in source; named credential referenced by name only',
+            ]},
+          ], success: 'Webhook to dashboard works end to end, backfill converges, and CI is green on every push.' },
+        ]
+      },
+      {
+        title: 'UC3 · ServicePulse Routing + Dashboard (Service)', mins: 45,
+        blocks: [
+          { t: 'p', x: 'Build the support engine for ServicePulse: a record-triggered Flow routes cases with SLA deadlines from custom metadata, a nightly batch recomputes SLA health and fires breach events, and an LWC dashboard shows live agent workload with empApi refreshes.' },
+          { t: 'callout', kind: 'tip', x: 'Skills on test: record-triggered Flow calling Apex (Phase 6), deterministic round-robin assignment via @InvocableMethod (Phases 6 + 2), custom metadata read for policy (Phase 6), SLACalculatorBatch with idempotent publishes (Phases 5 + 10), aggregates and GROUP BY (Phase 3), LWC @wire + empApi (Phase 8), Visualforce CSV export (Phase 7), sharing-aware queries with runAs (Phases 1 + 9).' },
+          { t: 'proj', id: 'UC3', title: 'ServicePulse Case Routing & Dashboard', stars: 4, obj: 'Route, clock, monitor and export support cases with live agent visibility.', reqs: [
+            { h: 'Milestone M1 - Case routing flow + policy', items: [
+              'SLA_Policy__mdt with Minutes per product line (Billing 480, Hardware 120, Software 240, General 720)',
+              'Record-triggered Flow setting Product_Line, Priority and SLA_Deadline via SLAPolicyService',
+              'Empty-mapped policy falls back to 720 minutes; re-entry guarded',
+            ]},
+            { h: 'Milestone M2 - Round-robin assignment', items: [
+              'CaseAssignmentService @InvocableMethod assigning the least-loaded active agent',
+              'One aggregate query for workload plus map join; deterministic tie-break',
+              'Only changed Assigned_Agent__c rows reach DML',
+            ]},
+            { h: 'Milestone M3 - SLA batch + breach events', items: [
+              'SLACalculatorBatch computing On Track / At Risk / Breached from SLA_Deadline__c',
+              'Publish SLABreachWarning_Event__e exactly once per newly-breached case',
+              'SLACalculatorScheduler running the batch nightly',
+            ]},
+            { h: 'Milestone M4 - LWC dashboard + live updates', items: [
+              'servicePulseDashboard with @wire(getDashboardData) over aggregate SOQL',
+              'By-agent, by-product-line and aging-bucket stats rendered as chips',
+              'empApi subscription to the breach channel refreshing via refreshApex',
+            ]},
+            { h: 'Milestone M5 - Visualforce CSV export', items: [
+              'CaseExportController + CaseExportPage streaming a CSV of open cases',
+              'Sharing-aware query; export respects the running user',
+            ]},
+          ], success: 'Cases route deterministically, SLA breaches fire live events, and the dashboard exports to CSV.'}
+        ]
+      },
+    ],
+    quiz: {
+      title: 'Phase 16 Quiz - Use Case Application', mins: 4,
+      questions: [
+        { q: 'Which two patterns keep the UC1 order pipeline from importing duplicated orders or re-triggering validation?',
+          opts: ['Idempotency check + recursion guard', 'List sorting + @future', 'SOQL LIMIT 1 + SOSL', 'Report refresh + VF bookmark'], a: 0, why: 'A guarded trigger plus an idempotent service are the core integrity pattern taught across the roadmap.' },
+        { q: 'In UC2, bind variables in the queueable queries exist because.',
+          opts: ['they are faster than aggregates', 'they prevent SOQL injection and keep the query governor budget predictable',
+                 'they let flows edit ternary results', 'they make the class stateless'], a: 1, why: 'Bind variables give both injection safety and a stable query shape for testing.' },
+        { q: 'What is the ONLY reliable way to prove the ServicePulse dashboard does not leak unshared cases?',
+          opts: ['Reading the component JavaScript', 'A class annotated @RestResource',
+                 'A runAs test with a low-privilege profile asserting counts', 'Adding more fields to the Lightning layout'], a: 2, why: 'Sharing is verified behaviourally under a real user context, exactly like the Phase 1 and Phase 9 labs.' },
+      ]
+    }
+  },
+  {
+    id: 'ucanswers',
+    n: 17,
+    title: 'Use Case Solutions',
+    icon: '17',
+    color: '#DB2777',
+    tagline: 'Reference implementations for every milestone',
+    guide: '17-Use-Case-Solutions.md',
+    art: [
+      { label: '17-Use-Case-Solutions.md', href: 'developer Roadmap/17-Use-Case-Solutions.md' },
+    ],
+    objectives: [
+      'Study complete reference code for all three use cases',
+      'Compare architecture decisions and milestone tests',
+      'Learn the final data model for Deal-to-Order, SyncHub and ServicePulse',
+      'Reuse the patterns in real projects and certification scenarios',
+    ],
+    lessons: [
+      {
+        title: 'UC1 · Deal-to-Order Reference (Sales Ops)', mins: 18,
+        blocks: [
+          { t: 'p', x: 'Final data model plus complete reference code: BigDealValidationException, BigDealTrigger + BigDealHandler with recursion guard, OrderService with @InvocableMethod and idempotency, BigDealWonEventTrigger, RevenueRollupBatch + Scheduler, and the milestone tests asserting tier upgrades and idempotent re-runs.' },
+          { t: 'list', items: [
+            'BigDealHandler - single-handler before-trigger validation and defaults',
+            'OrderService - bulk-safe parse of Product_Summary into line items with discount',
+            'EventBus.publish(BigDealWon_Event__e) after DML for fulfilment',
+            'RevenueRollupBatch - one aggregate per scope, changed-row-only DML',
+            'RevenueRollupBatchTest - tier upgrade, health clamp, converged re-run',
+          ]},
+          { t: 'callout', kind: 'tip', x: 'The recursion guard cannot live in the @InvocableMethod service; it must wrap the trigger path only, otherwise the Flow-invoked create is swallowed.' },
+        ]
+      },
+      {
+        title: 'UC2 · SyncHub Reference (Integration)', mins: 18,
+        blocks: [
+          { t: 'p', x: 'Full webhook, queueable, batch and LWC implementation, including what an HttpCalloutMock must return for deterministic tests, the quarantine log flow, and the framework for the on-button Sync now.' },
+          { t: 'list', items: [
+            'ERPWebhookResource - @HttpPost parsing and publishing with 400 error handling',
+            'InventorySyncService - @AuraEnabled syncNow + cacheable getSyncStats',
+            'InventorySyncQueueable - batched upsert by ExternalId with quarantine logs',
+            'InventoryBackfillBatch - QueryLocator over Pending rows, scope 200',
+            'MockApiService + InventorySyncServiceTest - enqueue and quarantine paths',
+            'erpSyncStatus LWC - @wire stats, imperative enqueue, refreshApex',
+          ]},
+        ]
+      },
+      {
+        title: 'UC3 · ServicePulse Reference (Service)', mins: 18,
+        blocks: [
+          { t: 'p', x: 'Routing service, SLA batch with once-only event publishes, sharing-aware dashboard controller, the empApi-subscribed LWC, the legacy Visualforce CSV export, and the batch test proving idempotence.' },
+          { t: 'list', items: [
+            'SLAPolicyService - custom metadata lookup in O(1), fallback 720 minutes',
+            'CaseAssignmentService - aggregate workload + deterministic tie-break',
+            'SLACalculatorBatch - On Track / At Risk / Breached with EventBus bulk publish',
+            'CaseDashboardController - GROUP BY stats and aging buckets via one Apex call',
+            'servicePulseDashboard LWC - @wire + empApi breach refresh with unsubscribe',
+            'SLACalculatorBatchTest - exactly one event for the newly-breached case',
+          ]},
+          { t: 'callout', kind: 'tip', x: 'Connect the LWC dashboard to an org test event by publishing SLABreachWarning_Event__e in a debug run after the batch scheduler runs - it proves the Live section without a production night.' },
+        ]
+      },
+    ],
+    quiz: {
+      title: 'Phase 17 Quiz - Solution Review', mins: 3,
+      questions: [
+        { q: 'Where must the UC1 recursion guard be applied?',
+          opts: ['The @InvocableMethod service', 'The trigger handler path only', 'A flow decision branch', 'Nowhere - triggers never recur'], a: 1, why: 'The service needs to run for invoiced deals; only the trigger re-entry must be guarded.' },
+        { q: 'UC2 quarantine uses which object and status?',
+          opts: ['InboundChangeLog__c with Status Quarantined', 'OutboundChangeLog__c with Status Deferred',
+                 'BigDeal__c with Stage Lost', 'SLA_Policy__mdt with Active false'], a: 0, why: 'Failed ERP payloads land in the audit object so nothing is silently dropped.' },
+        { q: 'The UC3 dashboard refreshes live without polling via.',
+          opts: ['Visualforce page action', 'A scheduled report', 'empApi subscribing to SLABreachWarning_Event__e', 'LSpex server push'], a: 2, why: 'Platform event subscriptions with refreshApex give near-real-time updates.' },
+      ]
+    }
+  },
 
 ];
 

@@ -24,19 +24,25 @@ function load() {
   catch (e) { return defaultStore(); }
 }
 function defaultStore() {
-  return { done: {}, quiz: {}, best: {}, stars: {}, lastOpen: null };
+  return { done: {}, quiz: {}, best: {}, stars: {}, guide: {}, lastOpen: null };
 }
 function save() {
   try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {}
 }
 function lessonDone(mid, li)  { return !!store.done[mid + ':' + li]; }
 function markDone(mid, li, v) { store.done[mid + ':' + li] = v; save(); }
+function guideRead(mid)       { return !!(store.guide && store.guide[mid]); }
+function markGuideRead(mid, v) { if (!store.guide) store.guide = {}; store.guide[mid] = v; save(); }
 function moduleProgress(mid) {
   const m = byId(mid);
   if (!m) return { done: 0, total: 0, pct: 0, quizPct: 0, complete: 0, totalUnits: 0 };
   const lessons = m.lessons.length;
   let done = 0;
-  m.lessons.forEach((_, i) => { if (lessonDone(mid, i)) done++; });
+  if (guideRead(mid)) {
+    done = lessons;                       // reading the full guide = all lessons
+  } else {
+    m.lessons.forEach((_, i) => { if (lessonDone(mid, i)) done++; });
+  }
   // lessons are worth 2 units, quiz worth 1
   const units = lessons * 2 + 1;
   const earned = done * 2 + (store.quiz[mid] ? 1 : 0);
@@ -72,6 +78,7 @@ function hashFor() {
   if (route.view === 'phase') return '/phase/' + route.mid;
   if (route.view === 'lesson') return '/lesson/' + route.mid + '/' + route.li;
   if (route.view === 'quiz')  return '/quiz/' + route.mid;
+  if (route.view === 'guide') return '/guide/' + route.mid + (route.anchor ? '/' + route.anchor : '');
   return '/';
 }
 function parseHash() {
@@ -80,6 +87,7 @@ function parseHash() {
   if (parts[0] === 'phase') return { view: 'phase', mid: parts[1] };
   if (parts[0] === 'lesson') return { view: 'lesson', mid: parts[1], li: Number(parts[2]) };
   if (parts[0] === 'quiz')   return { view: 'quiz', mid: parts[1] };
+  if (parts[0] === 'guide')  return { view: 'guide', mid: parts[1], anchor: parts[2] || null };
   return { view: 'home' };
 }
 
@@ -105,6 +113,7 @@ function render() {
   if (r.view === 'phase')  return renderModule(mod);
   if (r.view === 'lesson') return renderLesson(mod, Math.min(Number(r.li) || 0, mod.lessons.length - 1));
   if (r.view === 'quiz')   return renderQuiz(mod);
+  if (r.view === 'guide')  return renderGuide(mod);
   renderHome();
 }
 
@@ -115,7 +124,7 @@ function renderSidebar() {
   aside.innerHTML = `
     <div class="side-brand">
       <div class="logo">☁️</div>
-      <div><b>Developer I & II Academy</b><span>15-phase roadmap</span></div>
+      <div><b>Developer I & II Academy</b><span>17-phase roadmap</span></div>
     </div>`;
 
   const nav = document.createElement('nav');
@@ -188,7 +197,7 @@ function renderHome() {
         <div class="hero-actions">
           <button class="btn primary" id="startBtn">${next ? '▶ Continue learning' : '🎉 Restart'}</button>
           <button class="btn ghost" id="phasesBtn">Browse all phases</button>
-          <span class="hero-meta">📅 15 phases · self-paced</span>
+          <span class="hero-meta">📅 17 phases · self-paced</span>
         </div>
       </div>
       <div class="ring-wrap">
@@ -287,12 +296,21 @@ function renderModule(mod) {
           <span>${p.done}/${p.total} lessons</span>
           <span>${store.quiz[mod.id] ? '✓ quiz taken' : 'quiz pending'}</span>
         </div>
+        <a class="btn primary sm" href="#/guide/${mod.id}">📖 Read the full guide</a>
         <a class="btn ghost sm" target="_blank" rel="noopener"
-           href="${GUIDE}${mod.guide}">📄 Full guide on GitHub</a>
+           href="${GUIDE}${mod.guide}">📄 raw</a>
       </div>
     </div>
 
     <div class="lessons reveal">
+      <a class="lesson-row guide-row" href="#/guide/${mod.id}" style="--c:${mod.color}">
+        <span class="lr-state guide">📖</span>
+        <span class="lr-info">
+          <b>Full module guide</b>
+          <span class="lr-meta">complete walkthrough · sections, tables, code & checklists${guideRead(mod.id) ? ' · read ✓' : ''}</span>
+        </span>
+        <span class="lr-arrow">→</span>
+      </a>
       ${mod.lessons.map((l, i) => `
         <a class="lesson-row" href="#/lesson/${mod.id}/${i}" style="--c:${mod.color}">
           <span class="lr-state">${lessonDone(mod.id, i) ? '<span class="lr-done">✓</span>' : String(i + 1).padStart(2, '0')}</span>
@@ -358,6 +376,9 @@ function renderLesson(mod, li) {
             <span class="toc-state">${lessonDone(mod.id, i) ? '✓' : i + 1}</span>
             <span>${l.title}<span class="toc-min">${l.mins}′</span></span>
           </a>`).join('')}
+        <a href="#/guide/${mod.id}" class="toc-item toc-guide" style="--c:${mod.color}">
+          <span class="toc-state">📖</span><span>Full module guide</span>
+        </a>
         <a href="#/quiz/${mod.id}" class="toc-item toc-quiz" style="--c:${mod.color}">
           <span class="toc-state">🧠</span><span>Module quiz</span>
         </a>
@@ -397,16 +418,31 @@ function renderLesson(mod, li) {
   requestAnimationFrame(() => window.scrollTo(0, 0));
 }
 
-/* Minimal markdown renderer for the exercise answer blocks */
-function mdInline(t) {
-  return t
-    .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
-    .replace(/`([^`]+)`/g, '<code class="inline">$1</code>');
+/* Minimal markdown renderer for the exercise answer blocks + full guides */
+let mdToc = [];            // filled on every md() call: { lvl, slug, label }
+
+function slugify(txt) {
+  return String(txt || '')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/[^a-z0-9]+/gi, '-')
+    .replace(/^-+|-+$/g, '')
+    .toLowerCase() || 'section';
 }
 
-function md(src) {
+function mdInline(t) {
+  return String(t)
+    .replace(/`([^`]+)`/g, (m, c) => '\u0001' + c + '\u0002')       // protect inline code
+    .replace(/\*\*([^*\n]+)\*\*/g, '<b>$1</b>')
+    .replace(/(^|[^*\u0001\u0002])\*([^*\n\u0001\u0002]+?)\*(?!\*)/g, '$1<i>$2</i>')
+    .replace(/\u0001([^\u0002]*)\u0002/g, '<code class="inline">$1</code>');
+}
+
+function md(src, opts) {
+  opts = opts || {};
   const lines = String(src || '').split(/\r?\n/);
   const html = [];
+  const seen = new Set();
+  mdToc = [];
   let i = 0, inFence = false, fenceBuf = [], fenceLang = '';
 
   while (i < lines.length) {
@@ -417,15 +453,27 @@ function md(src) {
     }
     if (inFence) {
       if (/^```/.test(line)) {
-        html.push(`<div class="codeblock"><div class="cb-head"><span class="cb-lang">${esc(fenceLang || 'text')}</span></div><pre><code>${fenceBuf.map(esc).join('\n')}</code></pre></div>`);
+        html.push(renderCode(fenceLang, fenceBuf));
         inFence = false; fenceBuf = []; fenceLang = ''; i++; continue;
       }
       fenceBuf.push(line); i++; continue;
     }
     if (/^\s*---\s*$/.test(line)) { i++; continue; }
 
-    const head = line.match(/^(#{2,4})\s+(.*)/);
-    if (head) { const lvl = Math.min(6, head[1].length + 2); html.push(`<h${lvl}>${mdInline(esc(head[2]))}</h${lvl}>`); i++; continue; }
+    const head = line.match(/^(#{1,4})\s+(.*)/);
+    if (head) {
+      const hl = head[1].length;
+      if (opts.skipH1 && hl === 1 && !seen.has('h1')) { seen.add('h1'); i++; continue; }
+      const lvl = hl + (opts.shift || 0);
+      const txt = esc(head[2]);
+      const label = mdInline(txt).replace(/<[^>]+>/g, '');
+      let slug = slugify(label), base = slug, n = 2;
+      while (seen.has(slug)) { slug = base + '-' + n; n++; }
+      seen.add(slug);
+      if (lvl <= 4) mdToc.push({ lvl, slug, label });
+      html.push(`<h${lvl} id="${slug}">${mdInline(txt)}</h${lvl}>`);
+      i++; continue;
+    }
 
     if (/^\|/.test(line)) {
       const rows = [];
@@ -435,8 +483,18 @@ function md(src) {
     }
     if (/^\s*[-*]\s+/.test(line)) {
       const items = [];
-      while (i < lines.length && /^\s*[-*]\s+/.test(lines[i])) { items.push(lines[i].replace(/^\s*[-*]\s+/, '')); i++; }
-      html.push(`<ul class="tick-list">${items.map(x => `<li>${mdInline(esc(x))}</li>`).join('')}</ul>`);
+      const isTask = /^\s*[-*]\s+\[[ xX]\]/.test(line);
+      while (i < lines.length && /^\s*[-*]\s+/.test(lines[i])) { items.push(lines[i]); i++; }
+      if (isTask) {
+        html.push('<ul class="task-list">' + items.map(x => {
+          const m = x.match(/^\s*[-*]\s+\[([ xX])\]\s+(.*)/);
+          if (!m) return `<li>${mdInline(esc(x.replace(/^\s*[-*]\s+/, '')))}</li>`;
+          const done = m[1] === 'x' || m[1] === 'X';
+          return `<li class="task ${done ? 'done' : ''}"><span class="t-box">${done ? '✓' : ''}</span><span class="t-text">${mdInline(esc(m[2]))}</span></li>`;
+        }).join('') + '</ul>');
+      } else {
+        html.push(`<ul class="tick-list">${items.map(x => `<li>${mdInline(esc(x.replace(/^\s*[-*]\s+/, '')))}</li>`).join('')}</ul>`);
+      }
       continue;
     }
     if (/^\s*\d+\.\s+/.test(line)) {
@@ -450,16 +508,18 @@ function md(src) {
     const para = [];
     while (i < lines.length) {
       const l = lines[i];
-      if (/^\s*$/.test(l) || /^```/.test(l) || /^\|/.test(l) || /^\s*[-*]\s+/.test(l) || /^\s*\d+\.\s+/.test(l) || /^(#{2,4})\s+/.test(l) || /^\s*---\s*$/.test(l)) break;
+      if (/^\s*$/.test(l) || /^```/.test(l) || /^\|/.test(l) || /^\s*[-*]\s+/.test(l) || /^\s*\d+\.\s+/.test(l) || /^(#{1,4})\s+/.test(l) || /^\s*---\s*$/.test(l)) break;
       para.push(l); i++;
     }
     if (para.length) html.push(`<p>${mdInline(esc(para.join(' ')))}</p>`);
   }
 
-  if (inFence && fenceBuf.length) {
-    html.push(`<div class="codeblock"><div class="cb-head"><span class="cb-lang">${esc(fenceLang || 'text')}</span></div><pre><code>${fenceBuf.map(esc).join('\n')}</code></pre></div>`);
-  }
+  if (inFence && fenceBuf.length) html.push(renderCode(fenceLang, fenceBuf));
   return html.join('');
+}
+
+function renderCode(lang, buf) {
+  return `<div class="codeblock"><div class="cb-head"><span class="cb-lang">${esc(lang || 'text')}</span></div><pre><code>${buf.map(esc).join('\n')}</code></pre></div>`;
 }
 
 function mdTable(rows) {
@@ -542,6 +602,117 @@ function renderBlock(b) {
     }
     default: return '';
   }
+}
+
+/* ------------------------- full guide page ------------------------- */
+
+const GUIDE_DIR = 'guide/';
+const guideCache = {};
+
+function fetchGuide(mod) {
+  const key = mod.guide;
+  if (guideCache[key]) return Promise.resolve(guideCache[key]);
+  if (!window.fetch) return Promise.reject(new Error('fetch unavailable'));
+  return fetch(GUIDE_DIR + key)
+    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+    .then(t => { guideCache[key] = t; return t; });
+}
+
+function renderGuide(mod) {
+  const p = moduleProgress(mod.id);
+  const read = guideRead(mod.id);
+
+  view.innerHTML = `
+    <div class="crumb reveal"><a href="#/">Dashboard</a> <span>›</span> <a href="#/phase/${mod.id}">${mod.title}</a> <span>›</span> <b>Full guide</b></div>
+
+    <div class="guide-hero reveal" style="--c:${mod.color}">
+      <div class="ph-ico">${mod.icon}</div>
+      <div class="ph-body">
+        <div class="ph-kicker">Phase ${String(mod.n).padStart(2, '0')} · complete guide</div>
+        <h1>${mod.title}</h1>
+        <p class="qc-sub">The full roadmap guide is rendered right here — every section, table, code sample and checklist from ${esc(mod.guide)}. ${read ? '<b>You marked this guide as read.</b>' : 'Read it end-to-end, then mark it as read to complete the module.'}</p>
+        <div class="guide-meta">
+          ${mod.art.map(a => `<a class="artifact" target="_blank" rel="noopener" href="https://github.com/AbdoAddouli/Salesforce-Dev-I-II-Roadmap/blob/main/${a.href}" style="--c:${mod.color}"><span class="a-ico">🗂️</span> <span>${a.label}</span></a>`).join('')}
+        </div>
+      </div>
+      <div class="ph-side">
+        <div class="ring sm" style="--p:${p.pct};--c:${mod.color}"><span>${p.pct}<small>%</small></span></div>
+        <div class="ph-stats"><span>${read ? '✓ guide read' : 'guide unread'}</span></div>
+        <a class="btn ghost sm" target="_blank" rel="noopener" href="${GUIDE}${mod.guide}">📄 raw on GitHub</a>
+      </div>
+    </div>
+
+    <div class="guide-wrap reveal">
+      <aside class="guide-toc" aria-label="Table of contents">
+        <div class="toc-title">On this guide</div>
+        <div id="guideToc"><div class="gt-loading">…</div></div>
+      </aside>
+      <article class="article guide-article" style="--c:${mod.color}">
+        <div class="guide-loading"><span class="spinner"></span> Loading the full guide…</div>
+      </article>
+    </div>
+
+    <div class="lesson-foot reveal">
+      <div class="lf-left">
+        <button class="btn primary" id="greadBtn">${read ? '✓ Guide read — toggle' : '✔ Mark guide as read'}</button>
+      </div>
+      <div class="lf-right">
+        ${mod.n > 1 ? `<a class="btn ghost sm" href="#/guide/${MODULES[mod.n - 2].id}">← ${MODULES[mod.n - 2].title}</a>` : ''}
+        ${mod.n < MODULES.length
+          ? `<a class="btn primary sm" href="#/guide/${MODULES[mod.n].id}">${MODULES[mod.n].title} →</a>`
+          : `<a class="btn primary sm" href="#/quiz/${mod.id}">🎯 Take the final quiz →</a>`}
+      </div>
+    </div>`;
+
+  fetchGuide(mod).then(src => {
+    const article = $('.guide-article');
+    article.innerHTML = md(src, { skipH1: true });
+    buildGuideToc();
+    if (route.anchor) {
+      const el = document.getElementById(route.anchor);
+      if (el) requestAnimationFrame(() => el.scrollIntoView({ block: 'start' }));
+    }
+    const fail = $('.guide-loading', article);
+    if (fail) fail.remove();
+  }).catch(() => {
+    const article = $('.guide-article');
+    article.innerHTML = `
+      <div class="guide-fail">
+        <div class="gf-ico">⚠️</div>
+        <h3>Could not load the guide file</h3>
+        <p>The full guide is served from <code class="inline">docs/guide/${esc(mod.guide)}</code> in this repo. If you are viewing a local file (not through GitHub Pages), the fetch may be blocked.</p>
+        <a class="btn" target="_blank" rel="noopener" href="${GUIDE}${mod.guide}">📄 Open the guide on GitHub</a>
+      </div>`;
+  });
+
+  const rb = $('#greadBtn');
+  if (rb) rb.addEventListener('click', () => { markGuideRead(mod.id, !guideRead(mod.id)); toast(guideRead(mod.id) ? 'Guide marked as read — module complete! 🎉' : 'Guide marked as unread'); render(); });
+
+  store.lastOpen = { mid: mod.id, li: 0 }; save();
+  requestAnimationFrame(() => window.scrollTo(0, 0));
+}
+
+function buildGuideToc() {
+  const toc = $('#guideToc');
+  if (!toc) return;
+  toc.innerHTML = '';
+  if (!mdToc.length) { toc.innerHTML = '<div class="gt-empty">Smooth reading — no section headings in this file.</div>'; return; }
+  mdToc.forEach(t => {
+    const a = document.createElement('a');
+    a.className = 'gt-item lvl' + t.lvl;
+    a.textContent = t.label;
+    a.href = '#/guide/' + route.mid + '/' + t.slug;
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const el = document.getElementById(t.slug);
+      if (el) {
+        route.anchor = t.slug;
+        history.replaceState(null, '', '#' + hashFor());
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+    toc.appendChild(a);
+  });
 }
 
 /* ------------------------- quiz page ------------------------- */
