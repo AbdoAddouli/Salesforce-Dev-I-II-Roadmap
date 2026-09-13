@@ -21,7 +21,7 @@ This repository is a **learning lab**, not just documentation. Every concept cov
 
 > **Scope** — The full developer journey: Apex & SOQL → triggers & order of execution → async Apex & platform events → UI (Visualforce / Aura / LWC) → testing & debugging → performance → integrations → release management → certification prep.
 
- > **Duration** — ~13 weeks, self-paced (each phase is one week of study + hands-on labs). Phases 14–15 provide practical exercises and complete answers for every topic.
+ > **Duration** — ~13 weeks, self-paced (each phase is one week of study + hands-on labs). Phases 14–15 provide practical exercises and complete answers for every topic; phases 16–17 are capstone real-world use cases and their reference solutions.
 
 ---
 
@@ -37,11 +37,11 @@ Curious how it all fits together? See **[ARCHITECTURE.md](./ARCHITECTURE.md)** f
 
 > **🎮 Interactive version** — explore the curriculum live at
 > **[`https://abdoaddouli.github.io/Salesforce-Dev-I-II-Roadmap/`](https://abdoaddouli.github.io/Salesforce-Dev-I-II-Roadmap/)**
-> built from `docs/` (15 modules, quizzes, search, progress tracking).
+> built from `docs/` (17 modules, quizzes, search, progress tracking, and full phase guides rendered inline).
 
 ---
 
-## 🧭 The 15-Phase Learning Roadmap
+## 🧭 The 17-Phase Learning Roadmap
 
 | Phase | Topic | Guide | Key Concepts |
 |------:|-------|-------|--------------|
@@ -60,8 +60,12 @@ Curious how it all fits together? See **[ARCHITECTURE.md](./ARCHITECTURE.md)** f
 | 13 | **Certification Prep** | [13-Certification-Prep.md](./developer%20Roadmap/13-Certification-Prep.md) | PDI & PDII blueprint, quiz engine, study plans |
 | 14 | **Practical Exercises & Mini Projects** | [14-Practical-Exercises-and-Mini-Projects.md](./developer%20Roadmap/14-Practical-Exercises-and-Mini-Projects.md) | 31 exercises, 10 mini projects, 1 capstone |
 | 15 | **Answers & Results** | [15-Answers-and-Results.md](./developer%20Roadmap/15-Answers-and-Results.md) | Complete solutions, test classes, expected output |
+| 16 | **Real-World Use Cases** | [16-Real-World-Use-Cases.md](./developer%20Roadmap/16-Real-World-Use-Cases.md) | 3 capstone builds applying every roadmap phase |
+| 17 | **Use Case Solutions** | [17-Use-Case-Solutions.md](./developer%20Roadmap/17-Use-Case-Solutions.md) | Reference implementations, milestone tests |
 
-Each guide follows the same structure: **core concepts → hands-on labs → practice quiz → SOQL/Apex practice** to build skills incrementally.
+The 3 use cases are designed so learners **apply everything they acquired**: UC1 *Deal-to-Order Automation* (triggers, Flows, `@InvocableMethod`, platform events, scheduled rollups, sharing), UC2 *SyncHub ERP Integration* (REST webhook, event-driven sync, backfill batch, LWC panel, CI/CD), and UC3 *ServicePulse Case Routing* (routing Flow with custom-metadata SLA policies, round-robin assignment, SLA batch, live LWC dashboard with `empApi`, Visualforce CSV export).
+
+Each guide follows the same structure: **core concepts → hands-on labs → practice quiz → SOQL/Apex practice** to build skills incrementally. In the interactive UI, every phase also ships its **full guide rendered inline** (`#/guide/<phase>`), complete with a table of contents, task checklists, code blocks, and tables.
 
 ---
 
@@ -177,7 +181,7 @@ All test classes use `@TestSetup` + `@isTest` and assert real behaviour (includi
 │   ├── dashboards/         # 1 dashboard (reference metadata)
 │   ├── platformEvents/     # Integration_Event__e
 │   └── customMetadata/     # Certification_Setting__mdt (exam facts)
-├── developer Roadmap/      # 15 phase study guides (13 theory + exercises + answers)
+├── developer Roadmap/      # 17 phase study guides (13 theory + exercises/answers + use cases)
 ├── scripts/apex/           # Apex warming-up snippets
 ├── scripts/soql/           # Practice SOQL queries
 ├── config/                 # Scratch org definition
